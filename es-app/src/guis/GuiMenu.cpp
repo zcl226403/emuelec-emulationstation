@@ -124,15 +124,10 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 		Settings::getInstance()->getBool("RetroachievementsMenuitem") && 
 		SystemConf::getInstance()->get("global.retroachievements.username") != "")
 		addEntry(_("RETROACHIEVEMENTS").c_str(), true, [this] { GuiRetroAchievements::show(mWindow); }, "iconRetroachievements");
-	
-	if (isFullUI)
-	{
+
 #if !defined(WIN32) || defined(_DEBUG)
 		addEntry(_("GAMES SETTINGS").c_str(), true, [this] { openGamesSettings_batocera(); }, "iconGames");
 		addEntry(_("CONTROLLERS SETTINGS").c_str(), true, [this] { openControllersSettings_batocera(); }, "iconControllers");
-		addEntry(_("UI SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
-		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
-		addEntry(_("SOUND SETTINGS").c_str(), true, [this] { openSoundSettings(); }, "iconSound");
 
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			addEntry(_("NETWORK SETTINGS").c_str(), true, [this] { openNetworkSettings_batocera(); }, "iconNetwork");
@@ -140,12 +135,24 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 			addEntry(_("GAMES SETTINGS").c_str(), true, [this] { openGamesSettings_batocera(); }, "iconGames");
 
-		addEntry(_("UI SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
-
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))		
 			addEntry(_("CONTROLLERS SETTINGS").c_str(), true, [this] { openControllersSettings_batocera(); }, "iconControllers");
 		else
 			addEntry(_("CONFIGURE INPUT"), true, [this] { openConfigInput(); }, "iconControllers");
+#endif
+
+	if (isFullUI)
+	{
+#if !defined(WIN32) || defined(_DEBUG)
+		
+		
+		addEntry(_("UI SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
+		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
+		addEntry(_("SOUND SETTINGS").c_str(), true, [this] { openSoundSettings(); }, "iconSound");
+		
+#else
+		
+		addEntry(_("UI SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
 
 		addEntry(_("SOUND SETTINGS").c_str(), true, [this] { openSoundSettings(); }, "iconSound");
 		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
@@ -208,7 +215,7 @@ if (!isKidUI) {
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "EmuELEC Settings");
+	auto s = new GuiSettings(mWindow, "ZCL数码电子-主设置");
 
 	Window* window = mWindow;
 	std::string a;
@@ -336,7 +343,9 @@ void GuiMenu::openEmuELECSettings()
                 SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-#endif	
+#endif
+if (UIModeController::getInstance()->isUIModeFull())
+	{	
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)		
 		auto emuelec_audiodev_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "AUDIO DEVICE", false);
 		std::vector<std::string> Audiodevices;
@@ -362,6 +371,7 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});
 #endif
+	}
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
@@ -401,7 +411,9 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-			
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{			
 		auto emuelec_boot_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "START AT BOOT", false);
 		std::vector<std::string> devices;
 		devices.push_back("Emulationstation");
@@ -425,7 +437,8 @@ void GuiMenu::openEmuELECSettings()
 			bool fpsenabled = fps_enabled->getState();
                 SystemConf::getInstance()->set("global.showFPS", fpsenabled ? "1" : "0");
 				SystemConf::getInstance()->saveSystemConf();
-			});       
+			});    
+	}   
 /*
        auto bezels_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool bezelsEnabled = SystemConf::getInstance()->get("global.bezel") == "1";
@@ -458,8 +471,9 @@ void GuiMenu::openEmuELECSettings()
 		SystemConf::getInstance()->saveSystemConf();
 	});
 
-	createInputTextRow(s, _("DEFAULT YOUTUBE SEARCH WORD"), "youtube.searchword", false);
-
+/*	createInputTextRow(s, _("DEFAULT YOUTUBE SEARCH WORD"), "youtube.searchword", false);*/
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	auto enable_advmamegp = std::make_shared<SwitchComponent>(mWindow);
 	bool advgpEnabled = SystemConf::getInstance()->get("advmame_auto_gamepad") == "1";
 	enable_advmamegp->setState(advgpEnabled);
@@ -493,12 +507,13 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
+	}
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+/*if (UIModeController::getInstance()->isUIModeFull())
+	{*/
         //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
-    }
+/*    }*/
 
     mWindow->pushGui(s);
 }
@@ -543,12 +558,15 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
          });
 #endif
 
+if (UIModeController::getInstance()->isUIModeFull())
+	{
     dangerZone->addEntry(_("BACKUP EMUELEC CONFIGS"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING THIS WILL RESTART EMULATIONSTATION!\n\nAFTER THE SCRIPT IS DONE REMEMBER TO COPY THE FILE /storage/roms/backup/ee_backup_config.tar.gz TO SOME PLACE SAFE OR IT WILL BE DELETED ON NEXT REBOOT!\n\nBACKUP CURRENT CONFIG AND RESTART?"), _("YES"),
 				[] { 
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils ee_backup backup", "", nullptr);
 				}, _("NO"), nullptr));
      });
+	}
 
     dangerZone->addEntry(_("RESET EMUELEC SCRIPTS AND BINARIES TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: SYSTEM WILL RESET SCRIPTS AND BINARIES !\nUPDATE, DOWNLOADS, THEMES, BLUETOOTH PAIRINGS AND ROMS FOLDER WILL NOT BE AFFECTED.\n\nRESET SCRIPTS AND BINARIES TO DEFAULT AND RESTART?"), _("YES"),
@@ -570,6 +588,9 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig ALL", "", nullptr);
 				}, _("NO"), nullptr));
      });
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
     dangerZone->addEntry(_("FORCE UPDATE"), true, [mWindow] { 
                  
     				if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
@@ -583,6 +604,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/updatecheck.sh forceupdate", "", nullptr);
 				}, _("NO"), nullptr));
      });
+	}
 
 mWindow->pushGui(dangerZone);
 }
@@ -872,7 +894,7 @@ void GuiMenu::addVersionInfo()
 		else
 #endif
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("EMUELEC ES V" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("ZCL数码电子 V" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
 		mVersion.setText("BATOCERA.LINUX ES V" + ApiSystem::getInstance()->getVersion() + buildDate);
 #endif
@@ -2322,7 +2344,8 @@ void GuiMenu::openGamesSettings_batocera()
 	s->addWithLabel(_("ENABLE MAX PERFORMANCE"), maxperf_enabled);
     s->addSaveFunc([maxperf_enabled] { SystemConf::getInstance()->set("global.maxperf", maxperf_enabled->getSelected()); });
 #endif
-
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	// rewind
 	auto rewind_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("REWIND"));
 	rewind_enabled->addRange({ { _("AUTO"), "auto" },{ _("ON") , "1" },{ _("OFF") , "0" } }, SystemConf::getInstance()->get("global.rewind"));
@@ -2343,7 +2366,7 @@ void GuiMenu::openGamesSettings_batocera()
 	{ 
 		SystemConf::getInstance()->set("global.autosave", autosave_enabled->getSelected()); 
 	});
-	
+	}
 	// Shaders preset
 #ifndef _ENABLEEMUELEC	
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::SHADERS))
@@ -2436,6 +2459,8 @@ void GuiMenu::openGamesSettings_batocera()
 	// latency reduction
 	s->addEntry(_("LATENCY REDUCTION"), true, [this] { openLatencyReductionConfiguration(mWindow, "global"); });
 
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	//AI-enabled translations
 	s->addEntry(_("AI GAME TRANSLATION"), true, [this]
 	{
@@ -2501,7 +2526,7 @@ void GuiMenu::openGamesSettings_batocera()
 
 		mWindow->pushGui(ai_service);
 	});
-	
+	}
 	// Load global custom features
 	for (auto feat : SystemData::mGlobalFeatures)
 	{
@@ -2552,6 +2577,8 @@ void GuiMenu::openGamesSettings_batocera()
 		window->pushGui(configuration);
 	});
 
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	if (SystemConf::getInstance()->get("system.es.menu") != "bartop")
 	{
 		s->addGroup(_("SYSTEM SETTINGS"));
@@ -2586,6 +2613,7 @@ void GuiMenu::openGamesSettings_batocera()
 
 		// Game List Update
 		// s->addEntry(_("UPDATE GAMES LISTS"), false, [this, window] { updateGameLists(window); });
+	}
 	}
 	mWindow->pushGui(s);
 }
@@ -4331,6 +4359,8 @@ void GuiMenu::popSpecificConfigurationGui(Window* mWindow, std::string title, st
 		systemConfiguration->addSaveFunc([configName, smoothing_enabled] { SystemConf::getInstance()->set(configName + ".smooth", smoothing_enabled->getSelected()); });
 	}
 
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	// rewind
 	if (systemData->isFeatureSupported(currentEmulator, currentCore, EmulatorFeatures::rewind))
 	{
@@ -4347,6 +4377,7 @@ void GuiMenu::popSpecificConfigurationGui(Window* mWindow, std::string title, st
 		autosave_enabled->addRange({ { _("AUTO"), "auto" }, { _("ON") , "1" }, { _("OFF"), "0" }, { _("SHOW SAVE SNAPSHOTS") , "2" }, { _("SHOW SNAPSHOTS IF NOT EMPTY") , "3" } }, SystemConf::getInstance()->get(configName + ".autosave"));
 		systemConfiguration->addWithLabel(_("AUTO SAVE/LOAD"), autosave_enabled);
 		systemConfiguration->addSaveFunc([configName, autosave_enabled] { SystemConf::getInstance()->set(configName + ".autosave", autosave_enabled->getSelected()); });
+	}
 	}
 #ifdef _ENABLEEMUELEC
 	// Shaders preset
