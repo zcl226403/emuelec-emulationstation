@@ -207,8 +207,8 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			});
 		}
 
-		if (UIModeController::getInstance()->isUIModeFull())
-		{
+//		if (UIModeController::getInstance()->isUIModeFull())
+//		{
 			mMenu.addEntry(isImageViewer ? _("DELETE ITEM") : _("DELETE GAME"), false, [this, game]
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("THIS WILL DELETE THE ACTUAL GAME FILE(S)!\nARE YOU SURE?"), _("YES"),
@@ -221,14 +221,14 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 
 			});
-		}
+//		}
 	}
 
 	bool isCustomCollection = (mSystem->isCollection() && game->getType() == FOLDER && CollectionSystemManager::get()->isCustomCollection(mSystem->getName()));
 	bool isAppendableToCollection = (game->getType() == GAME) && (mSystem->isGameSystem() || mSystem->isGroupSystem());
 
-	if (UIModeController::getInstance()->isUIModeFull())
-	{
+//	if (UIModeController::getInstance()->isUIModeFull())
+//	{
 		if (isCustomCollection || isAppendableToCollection)
 			mMenu.addGroup(_("COLLECTIONS"));
 
@@ -304,7 +304,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 		if (isCustomCollection)
 			mMenu.addEntry(_("DELETE COLLECTION"), false, std::bind(&GuiGameOptions::deleteCollection, this));
-	}
+//	}
 
 	bool fromPlaceholder = game->isPlaceHolder();
 	if (isImageViewer)
