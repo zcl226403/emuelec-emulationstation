@@ -579,7 +579,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     dangerZone->addEntry(_("RESET RETROARCH CONFIG TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: RETROARCH CONFIG WILL RESET TO DEFAULT\n\nPER-CORE CONFIGURATIONS WILL NOT BE AFFECTED BUT NO BACKUP WILL BE CREATED!\n\nRESET RETROARCH CONFIG TO DEFAULT?"), _("YES"),
 				[mWindow] { 
-
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting, please do not do anything else.")));
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig retroarch", "", nullptr);
 				}, _("NO"), nullptr));
      });
@@ -587,7 +587,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     dangerZone->addEntry(_("RESET SYSTEM TO DEFAULT CONFIG"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: ALL CONFIGURATIONS WILL BE RESET AND NO BACKUP WILL BE CREATED!\n\nIF YOU WANT TO KEEP YOUR SETTINGS MAKE A BACKUP AND SAVE IT ON AN EXTERNAL DRIVE BEFORE RUNING THIS OPTION!\n\nRESET SYSTEM TO DEFAULT CONFIG AND RESTART?"), _("YES"),
 				[mWindow] { 
-
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting / upgrading, please do not do anything else.")));
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig ALL", "", nullptr);
 				}, _("NO"), nullptr));
      });
