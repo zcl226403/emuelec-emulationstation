@@ -11,6 +11,7 @@
 #include "InputManager.h"
 #include "Log.h"
 #include "MameNames.h"
+#include "Genres.h"
 #include "platform.h"
 #include "PowerSaver.h"
 #include "Settings.h"
@@ -269,6 +270,8 @@ bool loadSystemConfigFile(Window* window, const char** errorString)
 {
 	*errorString = NULL;
 
+	StopWatch stopWatch("loadSystemConfigFile :", LogDebug);
+
 	ImageIO::loadImageCache();
 
 	if(!SystemData::loadConfig(window))
@@ -411,6 +414,8 @@ void playVideo()
 
 int main(int argc, char* argv[])
 {	
+	StopWatch* stopWatch = new StopWatch("main :", LogDebug);
+
 	// signal(SIGABRT, signalHandler);
 	signal(SIGFPE, signalHandler);
 	signal(SIGILL, signalHandler);
@@ -485,6 +490,7 @@ int main(int argc, char* argv[])
 	setLocale(argv[0]);	
 
 	// metadata init
+	Genres::init();
 	MetaDataList::initMetadata();
 
 	Window window;
@@ -492,7 +498,6 @@ int main(int argc, char* argv[])
 	PowerSaver::init();
 	ViewController::init(&window);
 	CollectionSystemManager::init(&window);
-	MameNames::init();
 
 	window.pushGui(ViewController::get());
 	if(!window.init(true, false))
@@ -512,6 +517,9 @@ int main(int argc, char* argv[])
 		runSystemCommand("systemd-run /usr/bin/czconf", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
+
+	MameNames::init();
+
 
 	const char* errorMsg = NULL;
 	if(!loadSystemConfigFile(splashScreen && splashScreenProgress ? &window : nullptr, &errorMsg))
@@ -600,6 +608,8 @@ int main(int argc, char* argv[])
 	int lastTime = SDL_GetTicks();
 	int ps_time = SDL_GetTicks();
 
+	delete stopWatch;
+
 	bool running = true;
 
 	while(running)
@@ -680,6 +690,8 @@ int main(int argc, char* argv[])
 	ThreadedHasher::stop();
 	ThreadedScraper::stop();
 
+	ApiSystem::getInstance()->deinit();
+
 	while(window.peekGui() != ViewController::get())
 		delete window.peekGui();
 
@@ -700,8 +712,8 @@ int main(int argc, char* argv[])
 	window.deinit();
 
 	processQuitMode();
+
 	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
 
 	return 0;
 }
-
