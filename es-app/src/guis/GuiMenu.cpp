@@ -568,27 +568,27 @@ if (UIModeController::getInstance()->isUIModeFull())
      });
 	}
 
-    dangerZone->addEntry(_("RESET EMUELEC SCRIPTS AND BINARIES TO DEFAULT"), true, [mWindow] { 
-    mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: SYSTEM WILL RESET SCRIPTS AND BINARIES !\nUPDATE, DOWNLOADS, THEMES, BLUETOOTH PAIRINGS AND ROMS FOLDER WILL NOT BE AFFECTED.\n\nRESET SCRIPTS AND BINARIES TO DEFAULT AND RESTART?"), _("YES"),
+    dangerZone->addEntry(_("RESET PSP TO DEFAULT"), true, [mWindow] { 
+    mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the PSP game configuration to the initial state\nIf you have changed some PSP game settings, it will be reset,\nSelf added PSP game configuration will not be reset.\n\nAre you sure to reset the PSP game configuration to the initial state?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig EMUS", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig pspconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
-    dangerZone->addEntry(_("RESET RETROARCH CONFIG TO DEFAULT"), true, [mWindow] { 
-    mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: RETROARCH CONFIG WILL RESET TO DEFAULT\n\nPER-CORE CONFIGURATIONS WILL NOT BE AFFECTED BUT NO BACKUP WILL BE CREATED!\n\nRESET RETROARCH CONFIG TO DEFAULT?"), _("YES"),
+    dangerZone->addEntry(_("RESET JOYPADS DEFAULT"), true, [mWindow] { 
+    mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the game controller to its initial state\nIf you change the controller settings, it will be reset to the initial state,\n\nAre you sure to reset the game controller configuration to the initial state?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig retroarch", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig joypadconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
-    dangerZone->addEntry(_("RESET SYSTEM TO DEFAULT CONFIG"), true, [mWindow] { 
-    mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: ALL CONFIGURATIONS WILL BE RESET AND NO BACKUP WILL BE CREATED!\n\nIF YOU WANT TO KEEP YOUR SETTINGS MAKE A BACKUP AND SAVE IT ON AN EXTERNAL DRIVE BEFORE RUNING THIS OPTION!\n\nRESET SYSTEM TO DEFAULT CONFIG AND RESTART?"), _("YES"),
+    dangerZone->addEntry(_("RESET UPGRADE SYSTEM TO DEFAULT CONFIG"), true, [mWindow] { 
+    mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: all configurations will be reset\nIf you change the controller, game, etc. settings, it will be reset.\n\nAre you sure to reset the system to the default settings?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting / upgrading, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig ALL", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig alldef", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
