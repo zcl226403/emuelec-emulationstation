@@ -572,7 +572,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the PSP game configuration to the initial state\nIf you have changed some PSP game settings, it will be reset,\nSelf added PSP game configuration will not be reset.\n\nAre you sure to reset the PSP game configuration to the initial state?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig pspconf", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/pspconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
@@ -580,7 +580,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the game controller to its initial state\nIf you change the controller settings, it will be reset to the initial state,\n\nAre you sure to reset the game controller configuration to the initial state?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig joypadconf", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/joypadconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
@@ -588,7 +588,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: all configurations will be reset\nIf you change the controller, game, etc. settings, it will be reset.\n\nAre you sure to reset the system to the default settings?"), _("YES"),
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("ZCL digital electronic reminder: \nresetting / upgrading, please do not do anything else.")));
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils czconfig alldef", "", nullptr);
+				runSystemCommand("systemd-run /usr/bin/alldef", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
