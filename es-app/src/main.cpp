@@ -514,7 +514,7 @@ int main(int argc, char* argv[])
 		std::string progressText = _("Loading...");
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
-		runSystemCommand("systemd-run /usr/bin/czconf", "", nullptr);
+		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
 
