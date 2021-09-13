@@ -514,9 +514,7 @@ int main(int argc, char* argv[])
 		std::string progressText = _("Loading...");
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
-		runSystemCommand("mount /dev/system /adboot", "", nullptr);
-		runSystemCommand("checkc=`cat /adboot/system/build.prop |grep "ro.product.name"|awk -F"=" '{print $2}'`", "", nullptr);
-		runSystemCommand("if [ "$checkc"x != "GAMEBOX_x2"x ];then reboot;fi", "", nullptr);
+		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
 
