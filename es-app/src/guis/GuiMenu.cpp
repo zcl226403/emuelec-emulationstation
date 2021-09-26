@@ -371,7 +371,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 			}
 		});
 #endif
-	}
+	
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
@@ -411,7 +411,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-
+	}
 if (UIModeController::getInstance()->isUIModeFull())
 	{			
 		auto emuelec_boot_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "START AT BOOT", false);
@@ -438,7 +438,7 @@ if (UIModeController::getInstance()->isUIModeFull())
                 SystemConf::getInstance()->set("global.showFPS", fpsenabled ? "1" : "0");
 				SystemConf::getInstance()->saveSystemConf();
 			});    
-	}   
+	   
 /*
        auto bezels_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool bezelsEnabled = SystemConf::getInstance()->get("global.bezel") == "1";
@@ -470,7 +470,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 		SystemConf::getInstance()->set("ee_bootvideo.enabled", bootvideoenabled ? "1" : "0");
 		SystemConf::getInstance()->saveSystemConf();
 	});
-
+	}
 /*	createInputTextRow(s, _("DEFAULT YOUTUBE SEARCH WORD"), "youtube.searchword", false);*/
 if (UIModeController::getInstance()->isUIModeFull())
 	{
@@ -558,7 +558,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
          });
 #endif
 
-if (UIModeController::getInstance()->isUIModeFull())
+/*if (UIModeController::getInstance()->isUIModeFull()) //备份
 	{
     dangerZone->addEntry(_("BACKUP EMUELEC CONFIGS"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING THIS WILL RESTART EMULATIONSTATION!\n\nAFTER THE SCRIPT IS DONE REMEMBER TO COPY THE FILE /storage/roms/backup/ee_backup_config.tar.gz TO SOME PLACE SAFE OR IT WILL BE DELETED ON NEXT REBOOT!\n\nBACKUP CURRENT CONFIG AND RESTART?"), _("YES"),
@@ -566,7 +566,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils ee_backup backup", "", nullptr);
 				}, _("NO"), nullptr));
      });
-	}
+	}*/
 
     dangerZone->addEntry(_("RESET PSP TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the PSP game configuration to the initial state\nIf you have changed some PSP game settings, it will be reset,\nSelf added PSP game configuration will not be reset.\n\nAre you sure to reset the PSP game configuration to the initial state?"), _("YES"),
@@ -592,7 +592,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
-if (UIModeController::getInstance()->isUIModeFull())
+/*if (UIModeController::getInstance()->isUIModeFull())//强制升级
 	{
     dangerZone->addEntry(_("FORCE UPDATE"), true, [mWindow] { 
                  
@@ -607,7 +607,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				runSystemCommand("systemd-run /usr/bin/updatecheck.sh forceupdate", "", nullptr);
 				}, _("NO"), nullptr));
      });
-	}
+	}*/
 
 mWindow->pushGui(dangerZone);
 }
@@ -2324,7 +2324,8 @@ void GuiMenu::openGamesSettings_batocera()
 		s->addSaveFunc([this, videoModeOptionList] { SystemConf::getInstance()->set("global.videomode", videoModeOptionList->getSelected()); });
 	}
 #endif
-
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	// smoothing
 	auto smoothing_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SMOOTH GAMES"));
 	smoothing_enabled->addRange({ { _("AUTO"), "auto" },{ _("ON") , "1" },{ _("OFF") , "0" } }, SystemConf::getInstance()->get("global.smooth"));
@@ -2347,8 +2348,7 @@ void GuiMenu::openGamesSettings_batocera()
 	s->addWithLabel(_("ENABLE MAX PERFORMANCE"), maxperf_enabled);
     s->addSaveFunc([maxperf_enabled] { SystemConf::getInstance()->set("global.maxperf", maxperf_enabled->getSelected()); });
 #endif
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+
 	// rewind
 	auto rewind_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("REWIND"));
 	rewind_enabled->addRange({ { _("AUTO"), "auto" },{ _("ON") , "1" },{ _("OFF") , "0" } }, SystemConf::getInstance()->get("global.rewind"));
@@ -2459,11 +2459,13 @@ if (UIModeController::getInstance()->isUIModeFull())
 		}
 	}
 #endif	
-	// latency reduction
-	s->addEntry(_("LATENCY REDUCTION"), true, [this] { openLatencyReductionConfiguration(mWindow, "global"); });
 
 if (UIModeController::getInstance()->isUIModeFull())
 	{
+
+	// latency reduction
+	s->addEntry(_("LATENCY REDUCTION"), true, [this] { openLatencyReductionConfiguration(mWindow, "global"); });
+
 	//AI-enabled translations
 	s->addEntry(_("AI GAME TRANSLATION"), true, [this]
 	{
@@ -2553,6 +2555,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 		s->addSaveFunc([cf, storageName] { SystemConf::getInstance()->set(storageName, cf->getSelected()); });
 	}
 
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	// Custom config for systems
 	s->addEntry(_("PER SYSTEM ADVANCED CONFIGURATION"), true, [this, s, window]
 	{
@@ -2580,8 +2584,6 @@ if (UIModeController::getInstance()->isUIModeFull())
 		window->pushGui(configuration);
 	});
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
 	if (SystemConf::getInstance()->get("system.es.menu") != "bartop")
 	{
 		s->addGroup(_("SYSTEM SETTINGS"));
@@ -4074,6 +4076,9 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 	}
 	
 #ifdef _ENABLEEMUELEC
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	s->addEntry(_("RESTART EMULATIONSTATION"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY RESTART EMULATIONSTATION?"), _("YES"),
 			[] {
@@ -4082,6 +4087,7 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 			   quitES(QuitMode::QUIT);
 		}, _("NO"), nullptr));
 	}, "iconRestart");
+
 
 	s->addEntry(_("START RETROARCH"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY START RETROARCH?"), _("YES"),
@@ -4093,7 +4099,8 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 			quitES(QuitMode::QUIT);
 		}, _("NO"), nullptr));
 	}, "iconControllers");
-	
+	}
+
 	s->addEntry(_("REBOOT FROM NAND"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY REBOOT FROM NAND?"), _("YES"),
 			[] {
