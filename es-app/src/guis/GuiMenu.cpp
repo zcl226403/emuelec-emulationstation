@@ -4077,8 +4077,7 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 	
 #ifdef _ENABLEEMUELEC
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+
 	s->addEntry(_("RESTART EMULATIONSTATION"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY RESTART EMULATIONSTATION?"), _("YES"),
 			[] {
@@ -4099,7 +4098,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 			quitES(QuitMode::QUIT);
 		}, _("NO"), nullptr));
 	}, "iconControllers");
-	}
+	
 
 	s->addEntry(_("REBOOT FROM NAND"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY REBOOT FROM NAND?"), _("YES"),
