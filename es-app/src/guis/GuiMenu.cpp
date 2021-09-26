@@ -558,7 +558,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
          });
 #endif
 
-/*if (UIModeController::getInstance()->isUIModeFull()) //备份
+if (UIModeController::getInstance()->isUIModeFull()) //备份
 	{
     dangerZone->addEntry(_("BACKUP EMUELEC CONFIGS"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING THIS WILL RESTART EMULATIONSTATION!\n\nAFTER THE SCRIPT IS DONE REMEMBER TO COPY THE FILE /storage/roms/backup/ee_backup_config.tar.gz TO SOME PLACE SAFE OR IT WILL BE DELETED ON NEXT REBOOT!\n\nBACKUP CURRENT CONFIG AND RESTART?"), _("YES"),
@@ -566,7 +566,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils ee_backup backup", "", nullptr);
 				}, _("NO"), nullptr));
      });
-	}*/
+	}
 
     dangerZone->addEntry(_("RESET PSP TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the PSP game configuration to the initial state\nIf you have changed some PSP game settings, it will be reset,\nSelf added PSP game configuration will not be reset.\n\nAre you sure to reset the PSP game configuration to the initial state?"), _("YES"),
@@ -592,7 +592,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				}, _("NO"), nullptr));
      });
 
-/*if (UIModeController::getInstance()->isUIModeFull())//强制升级
+if (UIModeController::getInstance()->isUIModeFull())//强制升级
 	{
     dangerZone->addEntry(_("FORCE UPDATE"), true, [mWindow] { 
                  
@@ -607,7 +607,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/updatecheck.sh forceupdate", "", nullptr);
 				}, _("NO"), nullptr));
      });
-	}*/
+	}
 
 mWindow->pushGui(dangerZone);
 }
