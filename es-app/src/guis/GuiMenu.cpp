@@ -411,9 +411,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-	}
-if (UIModeController::getInstance()->isUIModeFull())
-	{			
+	
+			
 		auto emuelec_boot_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "START AT BOOT", false);
 		std::vector<std::string> devices;
 		devices.push_back("Emulationstation");
@@ -470,10 +469,9 @@ if (UIModeController::getInstance()->isUIModeFull())
 		SystemConf::getInstance()->set("ee_bootvideo.enabled", bootvideoenabled ? "1" : "0");
 		SystemConf::getInstance()->saveSystemConf();
 	});
-	}
+	
 /*	createInputTextRow(s, _("DEFAULT YOUTUBE SEARCH WORD"), "youtube.searchword", false);*/
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+
 	auto enable_advmamegp = std::make_shared<SwitchComponent>(mWindow);
 	bool advgpEnabled = SystemConf::getInstance()->get("advmame_auto_gamepad") == "1";
 	enable_advmamegp->setState(advgpEnabled);
@@ -4077,7 +4075,8 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 	
 #ifdef _ENABLEEMUELEC
 
-
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	s->addEntry(_("RESTART EMULATIONSTATION"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY RESTART EMULATIONSTATION?"), _("YES"),
 			[] {
@@ -4098,7 +4097,7 @@ void GuiMenu::openQuitMenu_batocera_static(Window *window, bool quickAccessMenu,
 			quitES(QuitMode::QUIT);
 		}, _("NO"), nullptr));
 	}, "iconControllers");
-	
+	}
 
 	s->addEntry(_("REBOOT FROM NAND"), false, [window] {
 		window->pushGui(new GuiMsgBox(window, _("REALLY REBOOT FROM NAND?"), _("YES"),
@@ -4368,8 +4367,7 @@ void GuiMenu::popSpecificConfigurationGui(Window* mWindow, std::string title, st
 		systemConfiguration->addSaveFunc([configName, smoothing_enabled] { SystemConf::getInstance()->set(configName + ".smooth", smoothing_enabled->getSelected()); });
 	}
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+
 	// rewind
 	if (systemData->isFeatureSupported(currentEmulator, currentCore, EmulatorFeatures::rewind))
 	{
@@ -4387,7 +4385,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 		systemConfiguration->addWithLabel(_("AUTO SAVE/LOAD"), autosave_enabled);
 		systemConfiguration->addSaveFunc([configName, autosave_enabled] { SystemConf::getInstance()->set(configName + ".autosave", autosave_enabled->getSelected()); });
 	}
-	}
+	
 #ifdef _ENABLEEMUELEC
 	// Shaders preset
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::SHADERS) &&
