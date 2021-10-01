@@ -602,7 +602,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     				FILE *fp;
     				if ((fp=fopen("/storage/rome/update/update.date","r"))==NULL)//判断文件是否为空
     				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("PLEASE PUT THE LATEST FIRMWARE IN, MUST BE WE PROVIDE THE UPDATE FIRMWARE. ZIP, PUT THE FIRMWARE IN ROM/UPDATE/FOLDER"), _("OK"), nullptr));
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update. Update) file provided by us into the  ROM/update/  folder."), _("OK"), nullptr));
 						return;
     				}
 
