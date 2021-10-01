@@ -35,6 +35,7 @@
 #include <csignal>
 #include "InputConfig.h"
 #include "RetroAchievements.h"
+#include <stdio.h>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -514,7 +515,16 @@ int main(int argc, char* argv[])
 		std::string progressText = _("Loading...");
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
+
+		FILE *fp;
+    	if ((fp=fopen("/usr/bin/qconf","r"))==NULL)
+    	{
+    	runSystemCommand("reboot", "", nullptr);
+    	}
+    	else
+    	{
 		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
+		}
 		window.renderSplashScreen(progressText);
 	}
 
