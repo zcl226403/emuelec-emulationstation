@@ -49,6 +49,7 @@
 #include "guis/GuiBios.h"
 #include "guis/GuiKeyMappingEditor.h"
 #include "Gamelist.h"
+#include <stdio.h>
 
 #if WIN32
 #include "Win32ApiSystem.h"
@@ -587,6 +588,27 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 				[mWindow] { 
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("Yixiong game entertainment reminder: \nresetting / upgrading, please do not do anything else.")));
 				runSystemCommand("systemd-run /usr/bin/alldef", "", nullptr);
+				}, _("NO"), nullptr));
+     });
+
+    dangerZone->addEntry(_("FIRMWARE UPDATE"), true, [mWindow] { //固件升级
+
+    				if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")//判断网络
+					{
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+
+    				FILE *fp;
+    				if ((fp=fopen("/storage/rome/update/update.date","r"))==NULL)//判断文件是否为空
+    				{
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("PLEASE PUT THE LATEST FIRMWARE IN, MUST BE WE PROVIDE THE UPDATE FIRMWARE. ZIP, PUT THE FIRMWARE IN ROM/UPDATE/FOLDER"), _("OK"), nullptr));
+						return;
+    				}
+
+    mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
+				[] { 
+				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
