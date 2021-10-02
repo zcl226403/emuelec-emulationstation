@@ -293,8 +293,60 @@ void GuiMenu::openEmuELECSettings()
 		 }
 		});
 #endif
+#ifdef _ENABLEGAMEFORCE
+		auto emuelec_blrgboptions_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "BUTTON LED COLOR", false);
+		std::vector<std::string> blrgboptions;
+		blrgboptions.push_back("off");
+		blrgboptions.push_back("red");
+		blrgboptions.push_back("green");
+		blrgboptions.push_back("blue");
+		blrgboptions.push_back("white");
+		blrgboptions.push_back("purple");
+		blrgboptions.push_back("yellow");
+		blrgboptions.push_back("cyan");
+		
+		auto blrgboptionsS = SystemConf::getInstance()->get("bl_rgb");
+		if (blrgboptionsS.empty())
+		blrgboptionsS = "off";
+		
+		for (auto it = blrgboptions.cbegin(); it != blrgboptions.cend(); it++)
+		emuelec_blrgboptions_def->add(*it, *it, blrgboptionsS == *it);
+		
+		s->addWithLabel(_("BUTTON LED COLOR"), emuelec_blrgboptions_def);
+		s->addSaveFunc([emuelec_blrgboptions_def] {
+			if (emuelec_blrgboptions_def->changed()) {
+				std::string selectedblrgb = emuelec_blrgboptions_def->getSelected();
+                runSystemCommand("/usr/bin/odroidgoa_utils.sh bl " +selectedblrgb, "", nullptr);
+				SystemConf::getInstance()->set("bl_rgb", selectedblrgb);
+                SystemConf::getInstance()->saveSystemConf();
+			}
+		});
+		
+        auto emuelec_powerled_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "STATUS LED", false);
+		std::vector<std::string> powerledoptions;
+		powerledoptions.push_back("off");
+		powerledoptions.push_back("heartbeat");
+        powerledoptions.push_back("on");
+		
+		auto powerledoptionsS = SystemConf::getInstance()->get("gf_statusled");
+		if (powerledoptionsS.empty())
+		powerledoptionsS = "heartbeat";
+		
+		for (auto it = powerledoptions.cbegin(); it != powerledoptions.cend(); it++)
+		emuelec_powerled_def->add(*it, *it, powerledoptionsS == *it);
+		
+		s->addWithLabel(_("STATUS LED"), emuelec_powerled_def);
+		s->addSaveFunc([emuelec_powerled_def] {
+			if (emuelec_powerled_def->changed()) {
+				std::string selectedpowerled = emuelec_powerled_def->getSelected();
+                runSystemCommand("/usr/bin/odroidgoa_utils.sh pl " +selectedpowerled, "", nullptr);
+				SystemConf::getInstance()->set("gf_statusled", selectedpowerled);
+                SystemConf::getInstance()->saveSystemConf();
+			}
+		});
+#endif
 
-		auto emuelec_timezones = std::make_shared<OptionListComponent<std::string> >(mWindow, _("TIMEZONE"), false);
+auto emuelec_timezones = std::make_shared<OptionListComponent<std::string> >(mWindow, _("TIMEZONE"), false);
 	std::string currentTimezone = SystemConf::getInstance()->get("system.timezone");
 	if (currentTimezone.empty())
 		currentTimezone = std::string(getShOutput(R"(/usr/bin/emuelec-utils current_timezone)"));
@@ -383,59 +435,7 @@ void GuiMenu::openEmuELECSettings()
 	s->addWithLabel(_("SHOW CLOCK IN 12-HOUR FORMAT"), tmFormat);
 	s->addSaveFunc([tmFormat] { Settings::getInstance()->setBool("ClockMode12", tmFormat->getState()); });
 
-
-#ifdef _ENABLEGAMEFORCE
-		auto emuelec_blrgboptions_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "BUTTON LED COLOR", false);
-		std::vector<std::string> blrgboptions;
-		blrgboptions.push_back("off");
-		blrgboptions.push_back("red");
-		blrgboptions.push_back("green");
-		blrgboptions.push_back("blue");
-		blrgboptions.push_back("white");
-		blrgboptions.push_back("purple");
-		blrgboptions.push_back("yellow");
-		blrgboptions.push_back("cyan");
 		
-		auto blrgboptionsS = SystemConf::getInstance()->get("bl_rgb");
-		if (blrgboptionsS.empty())
-		blrgboptionsS = "off";
-		
-		for (auto it = blrgboptions.cbegin(); it != blrgboptions.cend(); it++)
-		emuelec_blrgboptions_def->add(*it, *it, blrgboptionsS == *it);
-		
-		s->addWithLabel(_("BUTTON LED COLOR"), emuelec_blrgboptions_def);
-		s->addSaveFunc([emuelec_blrgboptions_def] {
-			if (emuelec_blrgboptions_def->changed()) {
-				std::string selectedblrgb = emuelec_blrgboptions_def->getSelected();
-                runSystemCommand("/usr/bin/odroidgoa_utils.sh bl " +selectedblrgb, "", nullptr);
-				SystemConf::getInstance()->set("bl_rgb", selectedblrgb);
-                SystemConf::getInstance()->saveSystemConf();
-			}
-		});
-		
-        auto emuelec_powerled_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "STATUS LED", false);
-		std::vector<std::string> powerledoptions;
-		powerledoptions.push_back("off");
-		powerledoptions.push_back("heartbeat");
-        powerledoptions.push_back("on");
-		
-		auto powerledoptionsS = SystemConf::getInstance()->get("gf_statusled");
-		if (powerledoptionsS.empty())
-		powerledoptionsS = "heartbeat";
-		
-		for (auto it = powerledoptions.cbegin(); it != powerledoptions.cend(); it++)
-		emuelec_powerled_def->add(*it, *it, powerledoptionsS == *it);
-		
-		s->addWithLabel(_("STATUS LED"), emuelec_powerled_def);
-		s->addSaveFunc([emuelec_powerled_def] {
-			if (emuelec_powerled_def->changed()) {
-				std::string selectedpowerled = emuelec_powerled_def->getSelected();
-                runSystemCommand("/usr/bin/odroidgoa_utils.sh pl " +selectedpowerled, "", nullptr);
-				SystemConf::getInstance()->set("gf_statusled", selectedpowerled);
-                SystemConf::getInstance()->saveSystemConf();
-			}
-		});
-#endif
 if (UIModeController::getInstance()->isUIModeFull())
 	{	
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)		
