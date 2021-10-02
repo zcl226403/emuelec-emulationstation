@@ -216,7 +216,7 @@ if (!isKidUI) {
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "壹雄游艺-主设置");
+	auto s = new GuiSettings(mWindow, "壹雄游艺主机设置");
 
 	Window* window = mWindow;
 	std::string a;
@@ -293,6 +293,97 @@ void GuiMenu::openEmuELECSettings()
 		 }
 		});
 #endif
+
+		auto emuelec_timezones = std::make_shared<OptionListComponent<std::string> >(mWindow, _("TIMEZONE"), false);
+	std::string currentTimezone = SystemConf::getInstance()->get("system.timezone");
+	if (currentTimezone.empty())
+		currentTimezone = std::string(getShOutput(R"(/usr/bin/emuelec-utils current_timezone)"));
+	std::string a;
+	for(std::stringstream ss(getShOutput(R"(/usr/bin/emuelec-utils timezones)")); getline(ss, a, ','); ) {
+		emuelec_timezones->add(a, a, currentTimezone == a); // emuelec
+	}
+	s->addWithLabel(_("TIMEZONE"), emuelec_timezones);
+	s->addSaveFunc([emuelec_timezones] {
+		if (emuelec_timezones->changed()) {
+			std::string selectedTimezone = emuelec_timezones->getSelected();
+			runSystemCommand("ln -sf /usr/share/zoneinfo/" + selectedTimezone + " $(readlink /etc/localtime)", "", nullptr);
+		}
+		SystemConf::getInstance()->set("system.timezone", emuelec_timezones->getSelected());
+	});
+
+	// language choice
+	auto language_choice = std::make_shared<OptionListComponent<std::string> >(window, _("LANGUAGE"), false);
+
+	std::string language = SystemConf::getInstance()->get("system.language");
+	if (language.empty()) 
+		language = "en_US";
+
+	language_choice->add("ARABIC",               "ar_YE", language == "ar_YE");
+	language_choice->add("CATALÀ",               "ca_ES", language == "ca_ES");
+	language_choice->add("CYMRAEG",              "cy_GB", language == "cy_GB");
+	language_choice->add("DEUTSCH", 	     "de_DE", language == "de_DE");
+	language_choice->add("GREEK",                "el_GR", language == "el_GR");
+	language_choice->add("ENGLISH", 	     "en_US", language == "en_US" || language == "en");
+	language_choice->add("ESPAÑOL", 	     "es_ES", language == "es_ES" || language == "es");
+	language_choice->add("ESPAÑOL MEXICANO",     "es_MX", language == "es_MX");
+	language_choice->add("BASQUE",               "eu_ES", language == "eu_ES");
+	language_choice->add("FRANÇAIS",             "fr_FR", language == "fr_FR" || language == "fr");
+	language_choice->add("HUNGARIAN",            "hu_HU", language == "hu_HU");
+	language_choice->add("ITALIANO",             "it_IT", language == "it_IT");
+	language_choice->add("JAPANESE", 	     "ja_JP", language == "ja_JP");
+	language_choice->add("KOREAN",   	     "ko_KR", language == "ko_KR" || language == "ko");
+	language_choice->add("NORWEGIAN BOKMAL",     "nb_NO", language == "nb_NO");
+	language_choice->add("DUTCH",                "nl_NL", language == "nl_NL");
+	language_choice->add("NORWEGIAN",            "nn_NO", language == "nn_NO");
+	language_choice->add("OCCITAN",              "oc_FR", language == "oc_FR");
+	language_choice->add("POLISH",               "pl_PL", language == "pl_PL");
+	language_choice->add("PORTUGUES BRASILEIRO", "pt_BR", language == "pt_BR");
+	language_choice->add("PORTUGUES PORTUGAL",   "pt_PT", language == "pt_PT");
+	language_choice->add("RUSSIAN",              "ru_RU", language == "ru_RU");
+	language_choice->add("SVENSKA", 	     "sv_SE", language == "sv_SE");
+	language_choice->add("TÜRKÇE",  	     "tr_TR", language == "tr_TR");
+	language_choice->add("Українська",           "uk_UA", language == "uk_UA");
+	language_choice->add("简体中文", 	     "zh_CN", language == "zh_CN");
+	language_choice->add("正體中文", 	     "zh_TW", language == "zh_TW");
+	s->addWithLabel(_("LANGUAGE"), language_choice);
+
+#if !defined(_ENABLEEMUELEC)
+	// Timezone
+#if !defined(WIN32) || defined(_DEBUG)
+	auto availableTimezones = ApiSystem::getInstance()->getTimezones();
+	if (availableTimezones.size() > 0)
+	{
+		std::string currentTZ = ApiSystem::getInstance()->getCurrentTimezone();
+
+		bool valid_tz = false;
+		for (auto list_tz : availableTimezones){
+			if (currentTZ == list_tz) {
+				valid_tz = true;
+			}
+		}
+		if (!valid_tz)
+			currentTZ = "Europe/Paris";
+
+		auto tzChoices= std::make_shared<OptionListComponent<std::string> >(mWindow, _("SELECT YOUR TIMEZONE"), false);
+
+		for (auto tz : availableTimezones)
+			tzChoices->add(_(Utils::String::toUpper(tz).c_str()), tz, currentTZ == tz);
+
+		s->addWithLabel(_("TIMEZONE"), tzChoices);
+		s->addSaveFunc([tzChoices] {
+				SystemConf::getInstance()->set("system.timezone", tzChoices->getSelected());
+				ApiSystem::getInstance()->setTimezone(tzChoices->getSelected());
+				});
+	}
+#endif
+#endif
+	// Clock time format (14:42 or 2:42 pm)
+	auto tmFormat = std::make_shared<SwitchComponent>(mWindow);
+	tmFormat->setState(Settings::getInstance()->getBool("ClockMode12"));
+	s->addWithLabel(_("SHOW CLOCK IN 12-HOUR FORMAT"), tmFormat);
+	s->addSaveFunc([tmFormat] { Settings::getInstance()->setBool("ClockMode12", tmFormat->getState()); });
+
+
 #ifdef _ENABLEGAMEFORCE
 		auto emuelec_blrgboptions_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "BUTTON LED COLOR", false);
 		std::vector<std::string> blrgboptions;
@@ -602,12 +693,13 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     				FILE *fp;
     				if ((fp=fopen("/storage/rome/update/update.date","r"))==NULL)//判断文件是否为空
     				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update. Update) file provided by us into the  ROM/update/  folder."), _("OK"), nullptr));
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  rom/update/  folder."), _("OK"), nullptr));
 						return;
     				}
 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[] { 
+				[mWindow] { 
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("Yixiong game entertainment reminder: \nresetting / upgrading, please do not do anything else.")));
 				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
@@ -917,9 +1009,9 @@ void GuiMenu::addVersionInfo()
 		else
 #endif
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("南通壹雄游艺：" + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
-		mVersion.setText("BATOCERA.LINUX ES V" + ApiSystem::getInstance()->getVersion() + buildDate);
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate);
 #endif
 	}
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);
@@ -1625,94 +1717,7 @@ void GuiMenu::openSystemSettings_batocera()
 	// System informations
 	s->addEntry(_("INFORMATION"), true, [this] { openSystemInformations_batocera(); });
 
-	auto emuelec_timezones = std::make_shared<OptionListComponent<std::string> >(mWindow, _("TIMEZONE"), false);
-	std::string currentTimezone = SystemConf::getInstance()->get("system.timezone");
-	if (currentTimezone.empty())
-		currentTimezone = std::string(getShOutput(R"(/usr/bin/emuelec-utils current_timezone)"));
-	std::string a;
-	for(std::stringstream ss(getShOutput(R"(/usr/bin/emuelec-utils timezones)")); getline(ss, a, ','); ) {
-		emuelec_timezones->add(a, a, currentTimezone == a); // emuelec
-	}
-	s->addWithLabel(_("TIMEZONE"), emuelec_timezones);
-	s->addSaveFunc([emuelec_timezones] {
-		if (emuelec_timezones->changed()) {
-			std::string selectedTimezone = emuelec_timezones->getSelected();
-			runSystemCommand("ln -sf /usr/share/zoneinfo/" + selectedTimezone + " $(readlink /etc/localtime)", "", nullptr);
-		}
-		SystemConf::getInstance()->set("system.timezone", emuelec_timezones->getSelected());
-	});
-
-	// language choice
-	auto language_choice = std::make_shared<OptionListComponent<std::string> >(window, _("LANGUAGE"), false);
-
-	std::string language = SystemConf::getInstance()->get("system.language");
-	if (language.empty()) 
-		language = "en_US";
-
-	language_choice->add("ARABIC",               "ar_YE", language == "ar_YE");
-	language_choice->add("CATALÀ",               "ca_ES", language == "ca_ES");
-	language_choice->add("CYMRAEG",              "cy_GB", language == "cy_GB");
-	language_choice->add("DEUTSCH", 	     "de_DE", language == "de_DE");
-	language_choice->add("GREEK",                "el_GR", language == "el_GR");
-	language_choice->add("ENGLISH", 	     "en_US", language == "en_US" || language == "en");
-	language_choice->add("ESPAÑOL", 	     "es_ES", language == "es_ES" || language == "es");
-	language_choice->add("ESPAÑOL MEXICANO",     "es_MX", language == "es_MX");
-	language_choice->add("BASQUE",               "eu_ES", language == "eu_ES");
-	language_choice->add("FRANÇAIS",             "fr_FR", language == "fr_FR" || language == "fr");
-	language_choice->add("HUNGARIAN",            "hu_HU", language == "hu_HU");
-	language_choice->add("ITALIANO",             "it_IT", language == "it_IT");
-	language_choice->add("JAPANESE", 	     "ja_JP", language == "ja_JP");
-	language_choice->add("KOREAN",   	     "ko_KR", language == "ko_KR" || language == "ko");
-	language_choice->add("NORWEGIAN BOKMAL",     "nb_NO", language == "nb_NO");
-	language_choice->add("DUTCH",                "nl_NL", language == "nl_NL");
-	language_choice->add("NORWEGIAN",            "nn_NO", language == "nn_NO");
-	language_choice->add("OCCITAN",              "oc_FR", language == "oc_FR");
-	language_choice->add("POLISH",               "pl_PL", language == "pl_PL");
-	language_choice->add("PORTUGUES BRASILEIRO", "pt_BR", language == "pt_BR");
-	language_choice->add("PORTUGUES PORTUGAL",   "pt_PT", language == "pt_PT");
-	language_choice->add("RUSSIAN",              "ru_RU", language == "ru_RU");
-	language_choice->add("SVENSKA", 	     "sv_SE", language == "sv_SE");
-	language_choice->add("TÜRKÇE",  	     "tr_TR", language == "tr_TR");
-	language_choice->add("Українська",           "uk_UA", language == "uk_UA");
-	language_choice->add("简体中文", 	     "zh_CN", language == "zh_CN");
-	language_choice->add("正體中文", 	     "zh_TW", language == "zh_TW");
-	s->addWithLabel(_("LANGUAGE"), language_choice);
-
-#if !defined(_ENABLEEMUELEC)
-	// Timezone
-#if !defined(WIN32) || defined(_DEBUG)
-	auto availableTimezones = ApiSystem::getInstance()->getTimezones();
-	if (availableTimezones.size() > 0)
-	{
-		std::string currentTZ = ApiSystem::getInstance()->getCurrentTimezone();
-
-		bool valid_tz = false;
-		for (auto list_tz : availableTimezones){
-			if (currentTZ == list_tz) {
-				valid_tz = true;
-			}
-		}
-		if (!valid_tz)
-			currentTZ = "Europe/Paris";
-
-		auto tzChoices= std::make_shared<OptionListComponent<std::string> >(mWindow, _("SELECT YOUR TIMEZONE"), false);
-
-		for (auto tz : availableTimezones)
-			tzChoices->add(_(Utils::String::toUpper(tz).c_str()), tz, currentTZ == tz);
-
-		s->addWithLabel(_("TIMEZONE"), tzChoices);
-		s->addSaveFunc([tzChoices] {
-				SystemConf::getInstance()->set("system.timezone", tzChoices->getSelected());
-				ApiSystem::getInstance()->setTimezone(tzChoices->getSelected());
-				});
-	}
-#endif
-#endif
-	// Clock time format (14:42 or 2:42 pm)
-	auto tmFormat = std::make_shared<SwitchComponent>(mWindow);
-	tmFormat->setState(Settings::getInstance()->getBool("ClockMode12"));
-	s->addWithLabel(_("SHOW CLOCK IN 12-HOUR FORMAT"), tmFormat);
-	s->addSaveFunc([tmFormat] { Settings::getInstance()->setBool("ClockMode12", tmFormat->getState()); });
+	
 
 	// power saver
 	auto power_saver = std::make_shared< OptionListComponent<std::string> >(mWindow, _("POWER SAVER MODES"), false);
