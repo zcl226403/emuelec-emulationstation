@@ -598,14 +598,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-
-    				FILE *fp2;
-    				//判断是否有固件
-    				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
-    				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
-						return;
-    				}
+					
     				//升级
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
 				[mWindow] { 
