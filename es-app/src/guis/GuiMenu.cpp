@@ -601,8 +601,6 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 					//判断版本号
 					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);
     				FILE *fp1;
-
-    				runSystemCommand("rm -rf /storage/system/version/version", "", nullptr);//删除判定文件
     				//判断是否有固件
     				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
     				{
