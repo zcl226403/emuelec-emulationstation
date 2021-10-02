@@ -598,11 +598,16 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					
-    				//升级
+
+    				FILE *fp;
+    				if ((fp=fopen("/storage/rome/update/update.date","r"))==NULL)//判断文件是否为空
+    				{
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update. Update) file provided by us into the  ROM/update/  folder."), _("OK"), nullptr));
+						return;
+    				}
+
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[mWindow] { 
-				mWindow->pushGui(new GuiMsgBox(mWindow, _("Yixiong game entertainment reminder: \nresetting / upgrading, please do not do anything else.")));
+				[] { 
 				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
