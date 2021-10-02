@@ -516,7 +516,7 @@ int main(int argc, char* argv[])
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
 
-		runSystemCommand("md1=382be1da07ac054558b470f28a523804; md2=$(md5sum /flash/KERNEL.img | cut -b 1-32); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr)
+		runSystemCommand("md1=382be1da07ac054558b470f28a523804; md2=$(md5sum /flash/KERNEL.img | cut -b 1-32); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		
 		FILE *fp;
 
