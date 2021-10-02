@@ -598,8 +598,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					//判断版本号
-					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);
+
     				FILE *fp2;
     				//判断是否有固件
     				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
