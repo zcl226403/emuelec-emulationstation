@@ -615,7 +615,8 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 
     				runSystemCommand("rm -rf /storage/system/version/version", "", nullptr);//删除判定文件
     				//判断是否有固件
-    				if ((fp=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
+    				FILE *fp2;
+    				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
 						return;
