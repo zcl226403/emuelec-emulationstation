@@ -599,18 +599,12 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 					
-
-    				FILE *fp1;
-    				
-    				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空 判断是否有固件
+					FILE *fp;
+    				if ((fp=fopen("/storage/rome/update/update.date","r"))==NULL)//判断文件是否为空
     				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update. Update) file provided by us into the  ROM/update/  folder."), _("OK"), nullptr));
 						return;
     				}
-
-    				fclose(fp2);
-    				
-
 
     				//升级
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
