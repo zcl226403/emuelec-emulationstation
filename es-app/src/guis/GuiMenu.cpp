@@ -598,11 +598,6 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					else
-					{
-						runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号	
-					}
-
 
 
     				//升级
