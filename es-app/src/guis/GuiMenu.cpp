@@ -622,8 +622,9 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     						mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
 							return;
     					}
+    					fclose(fp);
     				}, nullptr));
-					fclose(fp);
+
 
     				
 
