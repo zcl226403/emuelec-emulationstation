@@ -599,7 +599,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 					
-					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
+					runSystemCommand("wget -N -P /storage/system  https://mlyd.com/m/VERSION.txt; upurl=$(cat /storage/system/VERSION.txt); uplocal=$(cat /usr/config/EE_VERSION); if [[ $upurl != $uplocal ]]; then  echo>/storage/system/version/version; fi", "", nullptr);//判断版本号，并生成版本文件
 					
 					//判断是否更新
 					FILE *fp1,*fp2;
