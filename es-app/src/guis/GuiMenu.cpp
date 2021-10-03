@@ -599,14 +599,9 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 					
+					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号
+    				FILE *fp2;
 
-    				FILE *fp1,*fp2;
-    				//判断是否更新
-    				if ((fp1=fopen("/storage/system/version/version","r"))==NULL)//判断文件是否为空
-    				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Is the latest version, no need to update."), _("OK"), nullptr));
-						return;
-    				}
     				
 
     				mWindow->pushGui(new GuiMsgBox(mWindow, _("Have a updated version, please download the firmware, \nwe provide the firmware into the roms/update/directory, \nand then update."), _("OK"), nullptr));
@@ -616,10 +611,10 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
 						return;
     				}
-    				fclose(fp1);
+    				
     				fclose(fp2);
     				
-
+    				runSystemCommand("rm -rf /storage/system/version/version", "", nullptr);//删除判定文件
 
     				//升级
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
