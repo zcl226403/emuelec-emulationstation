@@ -216,7 +216,7 @@ if (!isKidUI) {
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "壹雄游艺-主设置");
+	auto s = new GuiSettings(mWindow, "壹雄游艺主机设置");
 
 	Window* window = mWindow;
 	std::string a;
@@ -922,9 +922,9 @@ void GuiMenu::addVersionInfo()
 		else
 #endif
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("南通壹雄游艺：" + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
-		mVersion.setText("BATOCERA.LINUX ES V" + ApiSystem::getInstance()->getVersion() + buildDate);
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate);
 #endif
 	}
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);
