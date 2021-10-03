@@ -598,11 +598,9 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					else
-					{
-						runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
-					}
-
+					
+					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
+					
 					//判断是否更新
 					FILE *fp1,*fp2;
     				if ((fp1=fopen("/storage/system/version/version","r"))==NULL)//判断文件是否为空
