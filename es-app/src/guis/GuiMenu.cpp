@@ -598,8 +598,11 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					
-					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号
+					else
+					{
+						runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号	
+					}
+
     				FILE *fp1,*fp2;
     				//判断是否更新
     				if ((fp1=fopen("/storage/system/version/version","r"))==NULL)//判断文件是否为空
@@ -609,7 +612,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     				}
     				else
     				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Have a updated version, please download the firmware, \nwe provide the firmware into the roms/update/directory, \nand then update.")));    					
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Have a updated version, please download the firmware, \nwe provide the firmware into the roms/update/directory, \nand then update."), _("OK"), nullptr));    					
     				}
 
     				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空 判断是否有固件
