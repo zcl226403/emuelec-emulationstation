@@ -599,11 +599,11 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 					
-					runSystemCommand("wget -N -P /storage/system  https://mlyd.com/m/VERSION.txt; upurl=$(cat /storage/system/VERSION.txt); uplocal=$(cat /usr/config/EE_VERSION); if [[ $upurl != $uplocal ]]; then  echo>/storage/system/version/version; fi", "", nullptr);//判断版本号，并生成版本文件
+					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
 					
 					//判断是否更新
 					FILE *fp;
-    				if ((fp=fopen("/storage/system/version/version","r"))==NULL)
+    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Is the latest version, no need to update."), _("OK"), nullptr));
 						return;
@@ -612,6 +612,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Have a updated version, please download the firmware, \nwe provide the firmware into the roms/update/directory, \nand then update."), _("OK"), nullptr));
     					fclose(fp);
+    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);//删除版本文件
     				}
 
 					//判断是否有固件
