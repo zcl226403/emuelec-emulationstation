@@ -605,7 +605,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 
 					//判断是否更新
 					FILE *fp;
-    				if ((fp2=fopen2("/storage/system/version/version","r"))==NULL)//判断文件是否为空
+    				if ((fp=fopen("/storage/system/version/version.txt","r"))==NULL)//判断文件是否为空
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Is the latest version, no need to update."), _("OK"), nullptr));
 						return;
