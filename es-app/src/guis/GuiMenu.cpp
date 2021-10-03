@@ -602,30 +602,30 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 					runSystemCommand("wget -N -P /storage/system  https://mlyd.com/m/VERSION.txt; upurl=$(cat /storage/system/VERSION.txt); uplocal=$(cat /usr/config/EE_VERSION); if [[ $upurl != $uplocal ]]; then  echo>/storage/system/version/version; fi", "", nullptr);//判断版本号，并生成版本文件
 					
 					//判断是否更新
-					FILE *fp1,*fp2;
+					FILE *fp;
     				if ((fp1=fopen("/storage/system/version/version","r"))==NULL)
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Is the latest version, no need to update."), _("OK"), nullptr));
-    					fclose(fp1);
-    					fclose(fp2);
+    					fclose(fp);
 						return;
     				}
     				else
     				{
+    					fclose(fp);
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Have a updated version, please download the firmware, \nwe provide the firmware into the roms/update/directory, \nand then update."), _("OK"), nullptr));
-    					fclose(fp1);
     				}
 
 					//判断是否有固件
-    				if ((fp2=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
+					FILE *fp;
+    				if ((fp=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
-						fclose(fp2);
+						fclose(fp);
 						return;
     				}
     				else
     				{
-    					fclose(fp2);
+    					fclose(fp);
     				}
     				
 
