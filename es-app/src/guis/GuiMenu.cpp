@@ -599,12 +599,15 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 
+    				FILE *fp;
+    				if ((fp=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
+    				{
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
+						return;
+    				}
 
-    				//升级
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[mWindow] { 
-				mWindow->pushGui(new GuiMsgBox(mWindow, _("Yixiong game entertainment reminder: \nresetting / upgrading, please do not do anything else.")));
-				runSystemCommand("rm -rf /storage/system/version/version", "", nullptr);//删除判定文件
+				[] { 
 				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
