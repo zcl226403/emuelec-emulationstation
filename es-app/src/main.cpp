@@ -528,6 +528,7 @@ int main(int argc, char* argv[])
     	{
 		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
 		}
+		fclose(fp);
 		window.renderSplashScreen(progressText);
 	}
 
