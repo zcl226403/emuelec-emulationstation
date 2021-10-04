@@ -648,7 +648,8 @@ if (UIModeController::getInstance()->isUIModeFull())//强制升级
 					}
         
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: A FORCE UPDATE WILL DOWNLOAD WHATEVER VERSION IS AVAILABLE FOR UPDATE REGARDLESS OF VERSION BASED ON THE TYPE YOU HAVE SELECTED IN THE UPDATE & DOWNLOADS (beta or stable)\n\nSYSTEM WILL RESET SCRIPTS AND BINARIES !\nDOWNLOADS, THEMES, BLUETOOTH PAIRINGS AND ROMS FOLDER WILL NOT BE AFFECTED.\n\nCONTINUE WITH FORCE UPDATE?"), _("YES"),
-				[] { 
+				[mWindow] { 
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("Super warning: update files are running in the background, which will occupy a lot of resources. Please do not do anything at present. Remember: do not press OK. At present, you just need to wait quietly. Do not operate until the system is updated after restart.")));
 				runSystemCommand("systemd-run /usr/bin/updatecheck.sh forceupdate", "", nullptr);
 				}, _("NO"), nullptr));
      });
