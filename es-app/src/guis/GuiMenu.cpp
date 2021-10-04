@@ -615,7 +615,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     				}
 */
 
-
+				FILE *fp;
     			//判断是否有固件
     			if ((fp=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
     				{
