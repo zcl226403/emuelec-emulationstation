@@ -599,7 +599,7 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 						return;
 					}
 					
-					runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
+	/*				runSystemCommand("systemd-run /usr/bin/downversion", "", nullptr);//判断版本号，并生成版本文件
 					
 					//判断是否更新
 					FILE *fp;
@@ -608,22 +608,22 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Is the latest version, no need to update."), _("OK"), nullptr));
 						return;
     				}
-    				
+    				else
+    				{
+    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);//删除版本文件
     					fclose(fp);
-    				
-
+    				}
+*/
 
 
     			//判断是否有固件
     			if ((fp=fopen("/storage/roms/update/update.date","r"))==NULL)//判断文件是否为空
     				{
-    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);//删除版本文件
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't put in the firmware. Please put the latest firmware (update.date) file provided by us into the  roms/update/  folder."), _("OK"), nullptr));
 						return;
     				}
     				else
     				{
-    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);//删除版本文件
     					fclose(fp);
     				}
     			
