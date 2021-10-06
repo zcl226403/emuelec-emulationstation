@@ -2268,7 +2268,16 @@ void GuiMenu::openNetplaySettings()
 	settings->addGroup(_("SETTINGS"));
 
 	// Enable
-    s->addEntry(_("NETPLAY SERVER"), true, [mWindow] { 
+
+	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
+	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
+	settings->addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
+
+	std::string port = SystemConf::getInstance()->get("global.netplay.port");
+	if (port.empty())
+		SystemConf::getInstance()->set("global.netplay.port", "55435");
+	
+    settings->addEntry(_("NETPLAY SERVER"), true, [mWindow] { 
     	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")//判断网络
 					{
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
@@ -2281,14 +2290,6 @@ void GuiMenu::openNetplaySettings()
 				}, _("NO"), nullptr));
      });
 
-	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
-	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
-	settings->addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
-
-	std::string port = SystemConf::getInstance()->get("global.netplay.port");
-	if (port.empty())
-		SystemConf::getInstance()->set("global.netplay.port", "55435");
-			
 	createInputTextRow(settings, _("NICKNAME"), "global.netplay.nickname", false);
 	createInputTextRow(settings, _("PORT"), "global.netplay.port", false);
 
