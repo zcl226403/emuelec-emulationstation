@@ -2273,10 +2273,6 @@ void GuiMenu::openNetplaySettings(Window* mWindow)
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
 	settings->addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
 
-	std::string port = SystemConf::getInstance()->get("global.netplay.port");
-	if (port.empty())
-		SystemConf::getInstance()->set("global.netplay.port", "55435");
-	
     settings->addEntry(_("NETPLAY SERVER"), true, [mWindow] { 
     	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")//判断网络
 					{
@@ -2289,6 +2285,10 @@ void GuiMenu::openNetplaySettings(Window* mWindow)
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("Online server has been started, \nsuch as access client cannot access, \nplease check your network is normal.")));
 				}, _("NO"), nullptr));
      });
+
+	std::string port = SystemConf::getInstance()->get("global.netplay.port");
+	if (port.empty())
+		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
 	createInputTextRow(settings, _("NICKNAME"), "global.netplay.nickname", false);
 	createInputTextRow(settings, _("PORT"), "global.netplay.port", false);
