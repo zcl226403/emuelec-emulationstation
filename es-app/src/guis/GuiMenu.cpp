@@ -2268,18 +2268,7 @@ void GuiMenu::openNetplaySettings()
 	settings->addGroup(_("SETTINGS"));
 
 	// Enable
-    settings->addEntry(_("NETPLAY SERVER"), true, [mWindow] { 
-    	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")//判断网络
-					{
-						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
-						return;
-					}
-    mWindow->pushGui(new GuiMsgBox(mWindow, _("Whether to open the service"), _("YES"),
-				[mWindow] { 
-				runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
-				mWindow->pushGui(new GuiMsgBox(mWindow, _("Online server has been started, \nsuch as access client cannot access, \nplease check your network is normal.")));
-				}, _("NO"), nullptr));
-     });
+
 
 	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
