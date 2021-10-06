@@ -2261,7 +2261,7 @@ void GuiMenu::openRetroachievementsSettings()
 	mWindow->pushGui(retroachievements);
 }
 
-void GuiMenu::openNetplaySettings()
+void GuiMenu::openNetplaySettings(Window* mWindow)
 {
 	GuiSettings* settings = new GuiSettings(mWindow, _("NETPLAY SETTINGS").c_str());
 
