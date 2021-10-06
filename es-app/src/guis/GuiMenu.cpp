@@ -2273,8 +2273,12 @@ void GuiMenu::openNetplaySettings(Window* mWindow)
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
 	settings->addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
 
-    settings->addEntry(_("NETPLAY SERVER"), true, [mWindow] { 
-
+    settings->addEntry(_("NETPLAY SERVER"), false, [this] { 
+    	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")//判断网络
+					{
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Whether to open the service"), _("YES"),
 				[mWindow] { 
 				runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
