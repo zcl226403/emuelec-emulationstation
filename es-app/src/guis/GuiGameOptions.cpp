@@ -202,6 +202,20 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					msgBox->close();
 				});
 
+				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
+				{
+					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+					{
+						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+
+					LaunchGameOptions options;
+					options.netPlayMode = CLIENT;
+					ViewController::get()->launch(game, options);
+					msgBox->close();
+				});
+
 				msgBox->addGroup(_("OPTIONS"));
 
 				// pubic announce
