@@ -182,7 +182,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
 						return;
     				}
-    				msgBox->close();
 				});
 
 				msgBox->addGroup(_("START GAME"));
