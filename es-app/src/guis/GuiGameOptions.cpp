@@ -172,8 +172,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					fclose(fp);
     				}
 
-    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
-
 				});
 
 				msgBox->addGroup(_("START GAME"));
