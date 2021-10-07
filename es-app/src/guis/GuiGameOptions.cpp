@@ -170,6 +170,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				}
     				else
     				{
+    					runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
     					fclose(fp);
     				}
     				//判断是否有临时文件
