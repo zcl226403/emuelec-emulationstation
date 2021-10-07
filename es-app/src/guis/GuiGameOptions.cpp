@@ -27,6 +27,7 @@
 #include "guis/GuiSaveState.h"
 #include "SystemConf.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
 	mMenu(window, game->getName()), mReloadAll(false)
@@ -171,7 +172,18 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				{
     					fclose(fp);
     				}
-
+    				//判断是否有临时文件
+    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				{
+    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
+						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
+    				}
+    				else
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
+						fclose(fp);
+						return;
+    				}
 				});
 
 				msgBox->addGroup(_("START GAME"));
