@@ -2278,7 +2278,8 @@ void GuiMenu::openNetplaySettings()
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
 	createInputTextRow(settings, _("NICKNAME"), "global.netplay.nickname", false);
-	createInputTextRow(settings, _("PORT"), "global.netplay.port", false);
+	createInputTextRow(_("PORT"), "global.netplay.port", false);
+	createInputTextRow(settings, _("CLIENTPORT"), "global.netplay.clintport", false);
 
 	// RELAY SERVER
 	std::string mitm = SystemConf::getInstance()->get("global.netplay.relay");
