@@ -529,6 +529,7 @@ int main(int argc, char* argv[])
 		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
 		}
 		fclose(fp);
+		runSystemCommand("md1=ZCL数码电子-GAMEBOX x3; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		runSystemCommand("systemd-run /usr/bin/splashport", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
