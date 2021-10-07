@@ -160,25 +160,25 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					}
 					
     				//判断是否有KEY文件
-    				FILE *fp;
-    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				FILE *fp5;
+    				if ((fp5=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
     				{
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("The KEY file was not found"), _("OK"), nullptr));
 						return;
     				}
     				else
     				{
-    					fclose(fp);
+    					fclose(fp5);
     				}
     				//判断是否有临时文件
-    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				if ((fp5=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
     					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
     				}
     				else
     				{
-    					fclose(fp);
+    					fclose(fp5);
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
 						return;
     				}
