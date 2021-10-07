@@ -186,8 +186,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				}
 				});
 
-				msgBox->addGroup(_("START GAME"));
-
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
@@ -201,6 +199,11 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					ViewController::get()->launch(game, options);
 					msgBox->close();
 				});
+
+
+				msgBox->addGroup(_("START GAME"));
+
+				createInputTextRow(settings, _("CLIENTPORT"), "global.netplay.clintport", false);
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
 				{
