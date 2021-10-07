@@ -193,6 +193,17 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
+					//判断是否有KEY文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					fclose(fp);
+    				}
 
 					LaunchGameOptions options;
 					options.netPlayMode = SERVER;
@@ -201,8 +212,8 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				});
 
 
-				msgBox->addGroup(_("START GAME"));
-				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clintport", false);
+				msgBox->addGroup(_("LAUNCH THE CLIENT"));
+				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clineport", false);
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
 				{
@@ -211,7 +222,17 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-
+    				//判断是否有KEY文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					fclose(fp);
+    				}
 					LaunchGameOptions options;
 					options.netPlayMode = CLIENT;
 					ViewController::get()->launch(game, options);
