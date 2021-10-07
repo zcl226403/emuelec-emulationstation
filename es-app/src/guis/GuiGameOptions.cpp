@@ -151,7 +151,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->setSubTitle(game->getName());
 
 				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
-				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox, game]
+				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
