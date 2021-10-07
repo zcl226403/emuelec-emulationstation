@@ -150,40 +150,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				GuiSettings* msgBox = new GuiSettings(mWindow, _("NETPLAY"));
 				msgBox->setSubTitle(game->getName());
 
-				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
-				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox]
-				{
-					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
-					{
-						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
-						return;
-					}
-					
-    				//判断是否有KEY文件
-    				FILE *fp5;
-    				if ((fp5=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
-    				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("The KEY file was not found"), _("OK"), nullptr));
-						return;
-    				}
-    				else
-    				{
-    					fclose(fp5);
-    				}
-    				//判断是否有临时文件
-    				if ((fp5=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
-    				{
-    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
-						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
-    				}
-    				else
-    				{
-    					fclose(fp5);
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
-						return;
-    				}
-    				msgBox->close();
-				});
+
 
 				msgBox->addGroup(_("START GAME"));
 
