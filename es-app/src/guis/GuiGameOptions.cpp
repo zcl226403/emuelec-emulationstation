@@ -202,8 +202,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 
 				msgBox->addGroup(_("START GAME"));
-
-				createInputTextRow(settings, _("CLIENTPORT"), "global.netplay.clintport", false);
+				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clintport", false);
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
 				{
