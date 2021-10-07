@@ -175,7 +175,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				//判断是否有临时文件
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
-    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
+    					system("systemd-run /usr/bin/vpcserver", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
     				}
     				else
