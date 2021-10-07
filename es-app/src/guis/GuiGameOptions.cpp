@@ -150,6 +150,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				GuiSettings* msgBox = new GuiSettings(mWindow, _("NETPLAY"));
 				msgBox->setSubTitle(game->getName());
 
+				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
 
 
 				msgBox->addGroup(_("START GAME"));
