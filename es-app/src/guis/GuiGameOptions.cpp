@@ -151,7 +151,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->setSubTitle(game->getName());
 
 				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
-				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window]
+				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
@@ -183,6 +183,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
 						return;
     				}
+    				msgBox->close();
 				});
 
 				msgBox->addGroup(_("START GAME"));
