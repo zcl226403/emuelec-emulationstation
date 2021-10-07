@@ -49,10 +49,11 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 	bool isImageViewer = game->getSourceFileData()->getSystem()->hasPlatformId(PlatformIds::IMAGEVIEWER);
 	bool hasManual = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::PDFEXTRACTION) && Utils::FileSystem::exists(game->getMetadata(MetaDataId::Manual));
+	bool hasMagazine = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::PDFEXTRACTION) && Utils::FileSystem::exists(game->getMetadata(MetaDataId::Magazine));
 	bool hasMap = Utils::FileSystem::exists(game->getMetadata(MetaDataId::Map));
 	bool hasCheevos = game->hasCheevos();
 
-	if (hasManual || hasMap || hasCheevos)
+	if (hasManual || hasMap || hasCheevos || hasMagazine)
 	{
 		mMenu.addGroup(_("GAME MEDIAS"));
 
@@ -64,6 +65,15 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				close();
 			});
 		}
+
+		if (hasMagazine)
+		{
+			mMenu.addEntry(_("VIEW GAME MAGAZINE"), false, [window, game, this]
+			{
+				GuiImageViewer::showPdf(window, game->getMetadata(MetaDataId::Magazine));
+				close();
+			});
+		}		
 
 		if (hasMap)
 		{
@@ -139,43 +149,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			{
 				GuiSettings* msgBox = new GuiSettings(mWindow, _("NETPLAY"));
 				msgBox->setSubTitle(game->getName());
-
-
-				msgBox->addGroup(_("START NETWORK SERVER"));
-				msgBox->addEntry(_("START NETPLAY HOST"), false, [window, msgBox, game]
-				{
-					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
-					{
-						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
-						return;
-					}
-					
-    				//判断是否有KEY文件
-    				FILE *fp;
-    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
-    				{
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("The KEY file was not found"), _("OK"), nullptr));
-						return;
-    				}
-    				else
-    				{
-    					fclose(fp);
-    				}
-    				//判断是否有临时文件
-    				FILE *fp;
-    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
-    				{
-    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
-						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
-    				}
-    				else
-    				{
-    					fclose(fp);
-    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
-						return;
-    				}
-				}
-
 				msgBox->addGroup(_("START GAME"));
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
@@ -234,26 +207,28 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			});
 		}
 
-		mMenu.addEntry(isImageViewer ? _("DELETE ITEM") : _("DELETE GAME"), false, [this, game]
-		{			
-			mWindow->pushGui(new GuiMsgBox(mWindow, _("THIS WILL DELETE THE ACTUAL GAME FILE(S)!\nARE YOU SURE?"), _("YES"),
-				[this, game]
+//		if (UIModeController::getInstance()->isUIModeFull())
+//		{
+			mMenu.addEntry(isImageViewer ? _("DELETE ITEM") : _("DELETE GAME"), false, [this, game]
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("THIS WILL DELETE THE ACTUAL GAME FILE(S)!\nARE YOU SURE?"), _("YES"),
+					[this, game]
 				{
 					deleteGame(game);
 					close();
 				},
-				_("NO"), nullptr));
+					_("NO"), nullptr));
 
-			
-		});
 
+			});
+//		}
 	}
 
 	bool isCustomCollection = (mSystem->isCollection() && game->getType() == FOLDER && CollectionSystemManager::get()->isCustomCollection(mSystem->getName()));
 	bool isAppendableToCollection = (game->getType() == GAME) && (mSystem->isGameSystem() || mSystem->isGroupSystem());
 
-	if (UIModeController::getInstance()->isUIModeFull())
-	{
+//	if (UIModeController::getInstance()->isUIModeFull())
+//	{
 		if (isCustomCollection || isAppendableToCollection)
 			mMenu.addGroup(_("COLLECTIONS"));
 
@@ -270,7 +245,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 			int addToCollectionCount = 0;
 			for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
-				if (customCollection.second.filteredIndex == nullptr && !CollectionSystemManager::get()->inInCustomCollection(game, customCollection.first))
+				if (customCollection.second.filteredIndex == nullptr && customCollection.second.isEnabled && !CollectionSystemManager::get()->inInCustomCollection(game, customCollection.first))
 					addToCollectionCount++;
 
 			if (addToCollectionCount > 1)
@@ -285,13 +260,12 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					
 					for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
 					{
-						if (customCollection.second.filteredIndex != nullptr)
+						if (customCollection.second.filteredIndex != nullptr || !customCollection.second.isEnabled)
 							continue;
 
 						std::string collectionName = customCollection.first;
 						if (CollectionSystemManager::get()->inInCustomCollection(game, collectionName))
 							continue;
-
 						
 						msgBox->addEntry(Utils::String::toUpper(collectionName), false, [pThis, window, msgBox, collectionName, game]
 						{
@@ -309,7 +283,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 			for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
 			{
-				if (customCollection.second.filteredIndex != nullptr)
+				if (customCollection.second.filteredIndex != nullptr || !customCollection.second.isEnabled)
 					continue;
 
 				std::string collectionName = customCollection.first;
@@ -330,14 +304,14 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 		if (isCustomCollection)
 			mMenu.addEntry(_("DELETE COLLECTION"), false, std::bind(&GuiGameOptions::deleteCollection, this));
-	}
+//	}
 
 	bool fromPlaceholder = game->isPlaceHolder();
 	if (isImageViewer)
 		fromPlaceholder = true; 
 	else if (game->getType() == FOLDER && ((FolderData*)game)->isVirtualStorage())
 		fromPlaceholder = true;
-	else if (game->getType() == FOLDER && mSystem->getName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
+	else if (game->getType() == FOLDER && mSystem->isCollection()) // >getName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
 		fromPlaceholder = true;
 
 	if (!fromPlaceholder && !isCustomCollection && UIModeController::getInstance()->isUIModeFull())
@@ -368,7 +342,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			{
 				mMenu.addEntry(_("EDIT PAD TO KEYBOARD CONFIGURATION"), false, [this, game]
 				{ 
-					GuiMenu::editKeyboardMappings(mWindow, game); 
+					GuiMenu::editKeyboardMappings(mWindow, game, true); 
 					close();
 				});
 			}
@@ -376,7 +350,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			{
 				mMenu.addEntry(_("CREATE PAD TO KEYBOARD CONFIGURATION"), false, [this, game]
 				{ 
-					GuiMenu::editKeyboardMappings(mWindow, game); 
+					GuiMenu::editKeyboardMappings(mWindow, game, true);
 					close();
 				});
 			}
@@ -410,7 +384,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 	{
 		mMenu.addEntry(_("VIEW PAD TO KEYBOARD INFORMATION"), false, [this, game]
 		{ 
-			GuiMenu::editKeyboardMappings(mWindow, game);
+			GuiMenu::editKeyboardMappings(mWindow, game, false);
 			close();
 		});
 	}
