@@ -2265,7 +2265,7 @@ void GuiMenu::openNetplaySettings()
 {
 	GuiSettings* settings = new GuiSettings(mWindow, _("NETPLAY SETTINGS").c_str());
 
-	settings->addGroup(_("SETTINGS" + SystemConf::getInstance()->get("global.netplay.port")));
+	settings->addGroup(_("SETTINGS"));
 
 	// Enable
 
