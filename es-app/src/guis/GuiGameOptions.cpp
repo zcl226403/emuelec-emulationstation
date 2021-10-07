@@ -164,7 +164,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				FILE *fp5;
     				if ((fp5=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
     				{
-    					Window->pushGui(new GuiMsgBox(Window, _("The KEY file was not found"), _("OK"), nullptr));
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
 						return;
     				}
     				else
@@ -180,7 +180,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				else
     				{
     					fclose(fp5);
-    					Window->pushGui(new GuiMsgBox(Window, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
+    					window->pushGui(new GuiMsgBox(window, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
 						return;
     				}
 				});
