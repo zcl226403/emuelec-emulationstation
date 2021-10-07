@@ -151,7 +151,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->setSubTitle(game->getName());
 
 				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
-				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox]
+				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
@@ -171,7 +171,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					fclose(fp);
     				}
     				//判断是否有临时文件
-    				FILE *fp;
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
     					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
