@@ -27,7 +27,7 @@
 #include "guis/GuiSaveState.h"
 #include "SystemConf.h"
 #include <stdio.h>
-#include "ApiSystem.h"
+#include "platform.h"
 
 GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
 	mMenu(window, game->getName()), mReloadAll(false)
