@@ -26,6 +26,7 @@
 #include "SaveStateRepository.h"
 #include "guis/GuiSaveState.h"
 #include "SystemConf.h"
+#include <stdio.h>
 
 GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
 	mMenu(window, game->getName()), mReloadAll(false)
@@ -159,7 +160,29 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						return;
 					}
 					
-
+    				//判断是否有KEY文件
+    				FILE *fp5;
+    				if ((fp5=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					fclose(fp5);
+    				}
+    				//判断是否有临时文件
+    				if ((fp5=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				{
+    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
+						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
+    				}
+    				else
+    				{
+    					fclose(fp5);
+    					mWindow->pushGui(new GuiMsgBox(mWindow, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
+						return;
+    				}
 				});
 
 				msgBox->addGroup(_("START GAME"));
