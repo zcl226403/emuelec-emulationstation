@@ -194,15 +194,14 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
 						window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
-						msgBox->close();
     				}
     				else
     				{
     					runSystemCommand("killall netplay", "", nullptr);
     					window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
 						fclose(fp);
-						msgBox->close();
     				}
+    				msgBox->close();
 				});
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
