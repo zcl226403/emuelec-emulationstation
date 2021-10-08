@@ -28,6 +28,7 @@
 #include "SystemConf.h"
 #include <stdio.h>
 #include "platform.h"
+#include <unistd.h>
 
 GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
 	mMenu(window, game->getName()), mReloadAll(false)
