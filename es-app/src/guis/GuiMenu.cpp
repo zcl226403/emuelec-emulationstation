@@ -940,9 +940,9 @@ void GuiMenu::addVersionInfo()
 		else
 #endif
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("南通壹雄游艺设备有限公司 " + "主机房间号" + SystemConf::getInstance()->get("global.netplay.port") + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
-		mVersion.setText("南通壹雄游艺设备有限公司 " + "主机房间号" + SystemConf::getInstance()->get("global.netplay.port") + buildDate);
+		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate);
 #endif
 	}
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);
