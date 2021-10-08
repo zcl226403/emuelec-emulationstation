@@ -191,7 +191,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window]
 				{	
-					FILE *fp2;
     				//判断是否有临时文件
     				if ((fp2=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
@@ -202,7 +201,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				{
     					runSystemCommand("killall netplay", "", nullptr);
     					window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
-						fclose(fp2);
+						fclose(fp);
 						close();
     				}
 				});
