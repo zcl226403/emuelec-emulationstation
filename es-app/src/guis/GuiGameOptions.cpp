@@ -192,7 +192,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window]
 				{	
     				//判断是否有临时文件
-    				if ((fp2=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
 						window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
 						close();
