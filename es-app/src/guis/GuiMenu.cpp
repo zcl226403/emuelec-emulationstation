@@ -940,9 +940,9 @@ void GuiMenu::addVersionInfo()
 		else
 #endif
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("南通壹雄游艺设备有限公司 " + "主机房间号" + SystemConf::getInstance()->get("global.netplay.port") + buildDate + " 地址:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
-		mVersion.setText("南通壹雄游艺设备有限公司 " + ApiSystem::getInstance()->getVersion() + buildDate);
+		mVersion.setText("南通壹雄游艺设备有限公司 " + "主机房间号" + SystemConf::getInstance()->get("global.netplay.port") + buildDate);
 #endif
 	}
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);
@@ -2276,6 +2276,10 @@ void GuiMenu::openNetplaySettings()
 	std::string port = SystemConf::getInstance()->get("global.netplay.port");
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
+
+	std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
+	if (clineport.empty())
+		SystemConf::getInstance()->set("global.netplay.clineport", "55435");
 
 	createInputTextRow(settings, _("NICKNAME"), "global.netplay.nickname", false);
 	createInputTextRow(settings, _("PORT"), "global.netplay.port", false);
