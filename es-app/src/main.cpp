@@ -530,7 +530,6 @@ int main(int argc, char* argv[])
 		}
 		fclose(fp);
 		runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
-		runSystemCommand("systemd-run /usr/bin/splashport", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
 
