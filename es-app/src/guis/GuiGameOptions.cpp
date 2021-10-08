@@ -188,7 +188,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				msgBox->close();
 				});
 
-				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window]
+				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window, msgBox]
 				{	
     				//判断是否有临时文件
     				FILE *fp;
