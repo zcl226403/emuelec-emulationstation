@@ -153,7 +153,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->setSubTitle(game->getName());
 
 				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
-				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window]
+				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
@@ -178,7 +178,6 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				{
     					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
-						msgBox->close();
     				}
     				else
     				{
@@ -186,6 +185,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						fclose(fp);
 						return;
     				}
+    				msgBox->close();
 				});
 
 				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window]
