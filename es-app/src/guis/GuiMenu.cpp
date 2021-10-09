@@ -2277,10 +2277,6 @@ void GuiMenu::openNetplaySettings()
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
-	if (clineport.empty())
-		SystemConf::getInstance()->set("global.netplay.clineport", "55435");
-
 	createInputTextRow(settings, _("NICKNAME"), "global.netplay.nickname", false);
 	createInputTextRow(settings, _("PORT"), "global.netplay.port", false);
 
