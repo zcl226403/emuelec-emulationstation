@@ -209,6 +209,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					runSystemCommand("killall netplay", "", nullptr);
     					window->pushGui(new GuiMsgBox(window, _("netplaye server has been closed"), _("OK"), nullptr));
     					runSystemCommand("rm -rf /storage/system/netplay.check", "", nullptr);
+    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);
 						fclose(fp);
     				}
     				msgBox->close();
