@@ -1,9 +1,10 @@
-#include "GuiGamelistOptions.h"
+#include "GuiGameOptions.h"
 #include "guis/GuiGamelistFilter.h"
 #include "scrapers/Scraper.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/UIModeController.h"
 #include "views/ViewController.h"
+#include "components/SwitchComponent.h"
 #include "CollectionSystemManager.h"
 #include "FileFilterIndex.h"
 #include "FileSorts.h"
@@ -21,125 +22,277 @@
 #include "guis/GuiImageViewer.h"
 #include "views/SystemView.h"
 #include "GuiGameAchievements.h"
-#include "guis/GuiGameOptions.h"
-#include "views/gamelist/ISimpleGameListView.h"
+#include "guis/GuiGameScraper.h"
+#include "SaveStateRepository.h"
+#include "guis/GuiSaveState.h"
+#include "SystemConf.h"
+#include <stdio.h>
+#include "platform.h"
 
-std::vector<std::string> GuiGamelistOptions::gridSizes {
-	"automatic", "1x1",
-	"2x1", "2x2", "2x3", "2x4", "2x5", "2x6", "2x7",
-	"3x1", "3x2", "3x3", "3x4", "3x5", "3x6", "3x7",
-	"4x1", "4x2", "4x3", "4x4", "4x5", "4x6", "4x7",
-	"5x1", "5x2", "5x3", "5x4", "5x5", "5x6", "5x7",
-	"6x1", "6x2", "6x3", "6x4", "6x5", "6x6", "6x7",
-	"7x1", "7x2", "7x3", "7x4", "7x5", "7x6", "7x7"
-};
-
-GuiGamelistOptions::GuiGamelistOptions(Window* window, IGameListView* gamelist, SystemData* system, bool showGridFeatures) : GuiComponent(window),
-	mSystem(system), mMenu(window, _("VIEW OPTIONS")), fromPlaceholder(false), mFiltersChanged(false), mReloadAll(false), mGamelist(nullptr)
+GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
+	mMenu(window, game->getName()), mReloadAll(false)
 {
-	auto idx = system->getIndex(false);
+	mHasAdvancedGameOptions = false;
 
-	bool isInRelevancyMode = (idx != nullptr && idx->hasRelevency());
-	if (isInRelevancyMode)
-		mGamelist = gamelist;
+	mGame = game;
+	mSystem = game->getSystem();	
 
-	mGridSize = nullptr;
+	auto logo = game->getMarqueePath();
+	if (Utils::FileSystem::exists(logo))
+	{
+		auto image = std::make_shared<ImageComponent>(mWindow, true);  // image expire immediately
+		image->setIsLinear(true);
+		image->setImage(logo);
+		mMenu.setSubTitle("fake");
+		mMenu.setTitleImage(image, true);		
+	}
 
 	addChild(&mMenu);
 
-	mMenu.addButton(_("BACK"), _("go back"), [this] { delete this; });
+	bool isImageViewer = game->getSourceFileData()->getSystem()->hasPlatformId(PlatformIds::IMAGEVIEWER);
+	bool hasManual = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::PDFEXTRACTION) && Utils::FileSystem::exists(game->getMetadata(MetaDataId::Manual));
+	bool hasMagazine = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::PDFEXTRACTION) && Utils::FileSystem::exists(game->getMetadata(MetaDataId::Magazine));
+	bool hasMap = Utils::FileSystem::exists(game->getMetadata(MetaDataId::Map));
+	bool hasCheevos = game->hasCheevos();
 
-	// check it's not a placeholder folder - if it is, only show "Filter Options"
-	FileData* file = getGamelist()->getCursor();
-	fromPlaceholder = file->isPlaceHolder();
-
-	std::map<std::string, CollectionSystemData> customCollections = CollectionSystemManager::get()->getCustomCollectionSystems();
-	auto customCollection = customCollections.find(getCustomCollectionName());
-
-	auto theme = ThemeData::getMenuTheme();
-
-	if (!isInRelevancyMode)
+	if (hasManual || hasMap || hasCheevos || hasMagazine)
 	{
-		mMenu.addGroup(_("NAVIGATION"));
+		mMenu.addGroup(_("GAME MEDIAS"));
 
-		if (!Settings::getInstance()->getBool("ForceDisableFilters"))
-			if (customCollection == customCollections.cend() || customCollection->second.filteredIndex == nullptr)
-				addTextFilterToMenu();
-
-		ComponentListRow row;
-
-		if (!fromPlaceholder)
+		if (hasManual)
 		{
-			// jump to letter
-			row.elements.clear();
-
-			std::vector<std::string> letters = getGamelist()->getEntriesLetters();
-			if (!letters.empty())
+			mMenu.addEntry(_("VIEW GAME MANUAL"), false, [window, game, this]
 			{
-				mJumpToLetterList = std::make_shared<LetterList>(mWindow, _("JUMP TO LETTER"), false); // batocera
-
-				char curChar = (char)toupper(getGamelist()->getCursor()->getName()[0]);
-
-				if (std::find(letters.begin(), letters.end(), std::string(1, curChar)) == letters.end())
-					curChar = letters.at(0)[0];
-
-				for (auto letter : letters)
-					mJumpToLetterList->add(letter, letter[0], letter[0] == curChar);
-
-				row.addElement(std::make_shared<TextComponent>(mWindow, _("JUMP TO LETTER"), theme->Text.font, theme->Text.color), true); // batocera
-				row.addElement(mJumpToLetterList, false);
-				row.input_handler = [&](InputConfig* config, Input input)
-				{
-					if (config->isMappedTo(BUTTON_OK, input) && input.value)
-					{
-						jumpToLetter();
-						return true;
-					}
-					else if (mJumpToLetterList->input(config, input))
-					{
-						return true;
-					}
-					return false;
-				};
-				mMenu.addRow(row);
-			}
-		}
-				
-		ISimpleGameListView* simpleView = dynamic_cast<ISimpleGameListView*>(getGamelist());
-		if (simpleView != nullptr)
-		{
-			mMenu.addEntry(_("SELECT RANDOM GAME"), false, [this, simpleView]
-			{
-				simpleView->moveToRandomGame();
-				delete this;
+				GuiImageViewer::showPdf(window, game->getMetadata(MetaDataId::Manual));
+				close();
 			});
 		}
 
-		// sort list by
-		unsigned int currentSortId = mSystem->getSortId();
-		if (currentSortId > FileSorts::getSortTypes().size())
-			currentSortId = 0;
-
-		mListSort = std::make_shared<SortList>(mWindow, _("SORT GAMES BY"), false);
-		for (unsigned int i = 0; i < FileSorts::getSortTypes().size(); i++)
+		if (hasMagazine)
 		{
-			const FileSorts::SortType& sort = FileSorts::getSortTypes().at(i);
-			mListSort->add(sort.icon + sort.description, sort.id, sort.id == currentSortId); // TODO - actually make the sort type persistent
+			mMenu.addEntry(_("VIEW GAME MAGAZINE"), false, [window, game, this]
+			{
+				GuiImageViewer::showPdf(window, game->getMetadata(MetaDataId::Magazine));
+				close();
+			});
+		}		
+
+		if (hasMap)
+		{
+			mMenu.addEntry(_("VIEW GAME MAP"), false, [window, game, this]
+			{
+				auto imagePath = game->getMetadata(MetaDataId::Map);
+				GuiImageViewer::showImage(window, imagePath, Utils::String::toLower(Utils::FileSystem::getExtension(imagePath)) != ".pdf");
+				close();
+			});
 		}
 
-		mMenu.addWithLabel(_("SORT GAMES BY"), mListSort); // batocera	
-
-		// Show filtered menu
-		if (!Settings::getInstance()->getBool("ForceDisableFilters"))
+		if (hasCheevos)
 		{
-			if (customCollection == customCollections.cend() || customCollection->second.filteredIndex == nullptr)
-				mMenu.addEntry(_("OTHER FILTERS"), true, std::bind(&GuiGamelistOptions::openGamelistFilter, this));
+			if (!game->isFeatureSupported(EmulatorFeatures::cheevos))
+			{
+				std::string coreList = game->getSourceFileData()->getSystem()->getCompatibleCoreNames(EmulatorFeatures::cheevos);
+				std::string msg = _U("\uF06A  ");
+				msg += _("CURRENT CORE IS NOT COMPATIBLE") + " : " + Utils::String::toUpper(game->getCore(true));
+				if (!coreList.empty())
+				{
+					msg += _U("\r\n\uF05A  ");
+					msg += _("REQUIRED CORE") + " : " + Utils::String::toUpper(coreList);
+				}
+
+				mMenu.addWithDescription(_("VIEW GAME ACHIEVEMENTS"), msg, nullptr, [window, game, this]
+				{
+					GuiGameAchievements::show(window, Utils::String::toInteger(game->getMetadata(MetaDataId::CheevosId)));
+					close();
+				}, "", false, true, true);
+			}
+			else
+			{
+				mMenu.addEntry(_("VIEW GAME ACHIEVEMENTS"), false, [window, game, this]
+				{
+					GuiGameAchievements::show(window, Utils::String::toInteger(game->getMetadata(MetaDataId::CheevosId)));
+					close();
+				});
+			}
 		}
-		/*
+	}
+
+
+	if (game->getType() == GAME)
+	{
+		mMenu.addGroup(_("GAME"));
+
+		if (SaveStateRepository::isEnabled(game))
+		{
+			mMenu.addEntry(_("SAVE SNAPSHOTS"), false, [window, game, this]
+			{
+				mWindow->pushGui(new GuiSaveState(mWindow, game, [this, game](SaveState state)
+				{
+					LaunchGameOptions options;
+					options.saveStateInfo = state;
+					ViewController::get()->launch(game, options);
+				}));
+
+				this->close();
+			});
+		}
+		else
+		{
+			mMenu.addEntry(isImageViewer ? _("OPEN") : _("LAUNCH"), false, [window, game, this]
+			{
+				ViewController::get()->launch(game);
+				this->close();
+			});
+		}
+
+		if (game->isNetplaySupported())
+		{
+			mMenu.addEntry(_("START NETPLAY HOST"), false, [window, game, this]
+			{
+				GuiSettings* msgBox = new GuiSettings(mWindow, _("NETPLAY"));
+				msgBox->setSubTitle(game->getName());
+
+				msgBox->addGroup(_("ONLINE SERVER SETTINGS"));
+				msgBox->addEntry(_("START THE ONLINE SERVER"), false, [window, msgBox]
+				{
+					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+					{
+						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+					
+    				//判断是否有KEY文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
+    					fclose(fp);
+    				}
+    				//判断是否有临时文件
+    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				{
+    					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
+						window->pushGui(new GuiMsgBox(window, _("Is connect to the server"), _("OK"), nullptr));
+    				}
+    				else
+    				{
+    					fclose(fp);//判断是否启动服务器成功
+    					runSystemCommand("systemd-run /usr/bin/netplaycheck", "", nullptr);
+    					if ((fp=fopen("/storage/system/netplay.check","r"))==NULL)//判断文件是否为空
+    					{
+    						window->pushGui(new GuiMsgBox(window, _("The server is connected"), _("OK"), nullptr));
+    					}
+    					else
+    					{
+    						window->pushGui(new GuiMsgBox(window, _("Server connection is successful"), _("OK"), nullptr));
+    						fclose(fp);
+    					}
+    				}
+    				msgBox->close();
+				});
+
+				msgBox->addEntry(_("CLOSE THE ONLINE SERVER"), false, [window, msgBox]
+				{	
+    				//判断是否有临时文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
+    				{
+						window->pushGui(new GuiMsgBox(window, _("netplaye server has been closed"), _("OK"), nullptr));
+    				}
+    				else
+    				{
+    					runSystemCommand("killall netplay", "", nullptr);
+    					window->pushGui(new GuiMsgBox(window, _("netplaye server has been closed"), _("OK"), nullptr));
+    					runSystemCommand("rm -rf /storage/system/netplay.check", "", nullptr);
+    					runSystemCommand("rm -rf /storage/system/version.check", "", nullptr);
+						fclose(fp);
+    				}
+    				msgBox->close();
+				});
+
+				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
+				{
+					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+					{
+						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+					//判断是否有KEY文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					fclose(fp);
+    				}
+
+					LaunchGameOptions options;
+					options.netPlayMode = SERVER;
+					ViewController::get()->launch(game, options);
+					msgBox->close();
+				});
+
+
+				msgBox->addGroup(_("LAUNCH THE CLIENT"));
+				std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
+				if (clineport.empty())
+					SystemConf::getInstance()->set("global.netplay.clineport", "55435");
+				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clineport", false);
+				msgBox->addInputTextRow(_("LOCALIP"), "global.netplay.localip", false);
+
+				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
+				{
+					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+					{
+						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+    				//判断是否有KEY文件
+    				FILE *fp;
+    				if ((fp=fopen("/storage/ipkey/key","r"))==NULL)//判断文件是否为空
+    				{
+    					window->pushGui(new GuiMsgBox(window, _("The KEY file was not found"), _("OK"), nullptr));
+						return;
+    				}
+    				else
+    				{
+    					fclose(fp);
+    				}
+					LaunchGameOptions options;
+					options.netPlayMode = CLIENT;
+					ViewController::get()->launch(game, options);
+					msgBox->close();
+				});
+
+				msgBox->addGroup(_("OPTIONS"));
+
+				// pubic announce
+				auto public_announce = std::make_shared<SwitchComponent>(mWindow);
+				public_announce->setState(SystemConf::getInstance()->getBool("global.netplay_public_announce"));
+				msgBox->addWithLabel(_("PUBLICLY ANNOUNCE GAME"), public_announce);
+				msgBox->addSaveFunc([public_announce] { SystemConf::getInstance()->setBool("global.netplay_public_announce", public_announce->getState()); });
+						
+				// passwords
+				msgBox->addInputTextRow(_("SET PLAYER PASSWORD"), "global.netplay.password", false);
+				msgBox->addInputTextRow(_("SET VIEWER PASSWORD"), "global.netplay.spectatepassword", false);
+
+				mWindow->pushGui(msgBox);
+				close();
+			});
+		}
+
 		SystemData* all = SystemData::getSystem("all");
-		if (all != nullptr && file != nullptr && file->getType() != FOLDER)
+		if (all != nullptr && game != nullptr && game->getType() != FOLDER && !isImageViewer)
 		{
-			mMenu.addEntry(_("FIND SIMILAR GAMES..."), true, [this, file, all]
+			mMenu.addEntry(_("FIND SIMILAR GAMES..."), false, [this, game, all]
 			{
 				auto index = all->getIndex(true);
 
@@ -147,360 +300,236 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, IGameListView* gamelist, 
 				copyOfIndex->copyFrom(index);
 
 				index->resetFilters();
-				index->setTextFilter(file->getName(), true);
+				index->setTextFilter(game->getName(), true);
 
 				// Create As Popup And Set Exit Function
 				// We need to restore index when we are finished as we are using all games collection
 				ViewController::get()->getGameListView(all, true, [index, copyOfIndex]()
-				{ 
-					index->copyFrom((FileFilterIndex*) copyOfIndex);
+				{
+					index->copyFrom((FileFilterIndex*)copyOfIndex);
 					delete copyOfIndex;
 				});
 
-				delete this;
+				close();
 			});
-		}*/
+		}
+
+//		if (UIModeController::getInstance()->isUIModeFull())
+//		{
+			mMenu.addEntry(isImageViewer ? _("DELETE ITEM") : _("DELETE GAME"), false, [this, game]
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("THIS WILL DELETE THE ACTUAL GAME FILE(S)!\nARE YOU SURE?"), _("YES"),
+					[this, game]
+				{
+					deleteGame(game);
+					close();
+				},
+					_("NO"), nullptr));
+
+
+			});
+//		}
 	}
 
+	bool isCustomCollection = (mSystem->isCollection() && game->getType() == FOLDER && CollectionSystemManager::get()->isCustomCollection(mSystem->getName()));
+	bool isAppendableToCollection = (game->getType() == GAME) && (mSystem->isGameSystem() || mSystem->isGroupSystem());
 
-	/*
-	// Game medias
-	bool hasManual = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::PDFEXTRACTION) && Utils::FileSystem::exists(file->getMetadata(MetaDataId::Manual));
-	bool hasMap = Utils::FileSystem::exists(file->getMetadata(MetaDataId::Map));
-	bool hasCheevos = file->hasCheevos();
+//	if (UIModeController::getInstance()->isUIModeFull())
+//	{
+		if (isCustomCollection || isAppendableToCollection)
+			mMenu.addGroup(_("COLLECTIONS"));
 
-	if (hasManual || hasMap || hasCheevos)
-	{
-		mMenu.addGroup(_("GAME MEDIAS"));
-
-		if (hasManual)
+		if (isAppendableToCollection)
 		{
-			mMenu.addEntry(_("VIEW GAME MANUAL"), false, [window, file, this]
+			char trstring[1024];
+
+			snprintf(trstring, 1024, std::string(game->getFavorite() ? _("REMOVE FROM %s") : _("ADD TO %s")).c_str(), _("FAVORITES").c_str());
+			mMenu.addEntry(trstring, false, [this, game]
 			{
-				GuiImageViewer::showPdf(window, file->getMetadata(MetaDataId::Manual));
-				delete this;
+				CollectionSystemManager::get()->toggleGameInCollection(game, "Favorites");
+				close();
 			});
-		}
 
-		if (hasMap)
-		{
-			mMenu.addEntry(_("VIEW GAME MAP"), false, [window, file, this]
+			int addToCollectionCount = 0;
+			for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
+				if (customCollection.second.filteredIndex == nullptr && customCollection.second.isEnabled && !CollectionSystemManager::get()->inInCustomCollection(game, customCollection.first))
+					addToCollectionCount++;
+
+			if (addToCollectionCount > 1)
 			{
-				auto imagePath = file->getMetadata(MetaDataId::Map);				
-				GuiImageViewer::showImage(window, imagePath, Utils::String::toLower(Utils::FileSystem::getExtension(imagePath)) != ".pdf");
-				delete this;
-			});
-		}
-
-		if (hasCheevos)
-		{
-			if (!file->isFeatureSupported(EmulatorFeatures::cheevos))
-			{				
-				std::string coreList = file->getSourceFileData()->getSystem()->getCompatibleCoreNames(EmulatorFeatures::cheevos);
-				std::string msg = _U("\uF06A  ");
-				msg += _("CURRENT CORE IS NOT COMPATIBLE") + " : " + Utils::String::toUpper(file->getCore(true));
-				if (!coreList.empty())
+				mMenu.addEntry(_("ADD TO CUSTOM COLLECTION..."), false, [this, game]
 				{
-					msg += _U("\r\n\uF05A  ");
-					msg += _("REQUIRED CORE") + " : " + Utils::String::toUpper(coreList);
-				}
+					auto pThis = this;
+					Window* window = mWindow;
 
-				mMenu.addWithDescription(_("VIEW GAME ACHIEVEMENTS"), msg, nullptr, [window, file, this]
-				{
-					GuiGameAchievements::show(window, Utils::String::toInteger(file->getMetadata(MetaDataId::CheevosId)));
+					GuiSettings* msgBox = new GuiSettings(mWindow, _("ADD TO CUSTOM COLLECTION..."));
+					msgBox->setTag("popup");
+					
+					for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
+					{
+						if (customCollection.second.filteredIndex != nullptr || !customCollection.second.isEnabled)
+							continue;
+
+						std::string collectionName = customCollection.first;
+						if (CollectionSystemManager::get()->inInCustomCollection(game, collectionName))
+							continue;
+						
+						msgBox->addEntry(Utils::String::toUpper(collectionName), false, [pThis, window, msgBox, collectionName, game]
+						{
+							auto parent = pThis;
+							CollectionSystemManager::get()->toggleGameInCollection(game, collectionName);
+							msgBox->close();
+							parent->close();
+						});
+					}
+
+					mWindow->pushGui(msgBox);
+				//	close();
 				});
 			}
-			else
+
+			for (auto customCollection : CollectionSystemManager::get()->getCustomCollectionSystems())
 			{
-				mMenu.addEntry(_("VIEW GAME ACHIEVEMENTS"), false, [window, file, this]
+				if (customCollection.second.filteredIndex != nullptr || !customCollection.second.isEnabled)
+					continue;
+
+				std::string collectionName = customCollection.first;
+				bool exists = CollectionSystemManager::get()->inInCustomCollection(game, collectionName);
+				if (!exists && addToCollectionCount > 1)
+					continue;
+
+				snprintf(trstring, 1024, std::string(exists ? _("REMOVE FROM %s") : _("ADD TO %s")).c_str(), Utils::String::toUpper(collectionName).c_str());
+				mMenu.addEntry(trstring, false, [this, game, collectionName]
 				{
-					GuiGameAchievements::show(window, Utils::String::toInteger(file->getMetadata(MetaDataId::CheevosId)));
+					CollectionSystemManager::get()->toggleGameInCollection(game, collectionName);
+					close();
 				});
 			}
+
+
 		}
-	}
-	*/
-	if (!isInRelevancyMode)
+
+		if (isCustomCollection)
+			mMenu.addEntry(_("DELETE COLLECTION"), false, std::bind(&GuiGameOptions::deleteCollection, this));
+//	}
+
+	bool fromPlaceholder = game->isPlaceHolder();
+	if (isImageViewer)
+		fromPlaceholder = true; 
+	else if (game->getType() == FOLDER && ((FolderData*)game)->isVirtualStorage())
+		fromPlaceholder = true;
+	else if (game->getType() == FOLDER && mSystem->isCollection()) // >getName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
+		fromPlaceholder = true;
+
+	if (!fromPlaceholder && !isCustomCollection && UIModeController::getInstance()->isUIModeFull())
 	{
-		if (customCollection != customCollections.cend())
-		{
-			mMenu.addGroup(_("COLLECTION"));
-
-			if (customCollection->second.filteredIndex != nullptr)
-				mMenu.addEntry(_("EDIT DYNAMIC COLLECTION FILTERS"), false, std::bind(&GuiGamelistOptions::editCollectionFilters, this));
-
-			mMenu.addEntry(_("DELETE COLLECTION"), false, std::bind(&GuiGamelistOptions::deleteCollection, this));
-		}
-		else if ((!mSystem->isCollection() || mSystem->getName() == "all") && mSystem->getIndex(false) != nullptr)
-		{
-			mMenu.addGroup(_("COLLECTION"));
-			mMenu.addEntry(_("CREATE NEW DYNAMIC COLLECTION"), false, std::bind(&GuiGamelistOptions::createNewCollectionFilter, this));
-		}
-	}
-
-	auto glv = ViewController::get()->getGameListView(system);
-	std::string viewName = glv->getName();
-
-	// GameList view style
-	mViewMode = std::make_shared< OptionListComponent<std::string> >(mWindow, _("GAMELIST VIEW STYLE"), false);
-	std::vector<std::pair<std::string, std::string>> styles;
-	styles.push_back(std::pair<std::string, std::string>("automatic", _("automatic")));
-
-	auto mViews = system->getTheme()->getViewsOfTheme();
-
-	bool showViewStyle = mViews.size() > 2;
-
-	for (auto it = mViews.cbegin(); it != mViews.cend(); ++it)
-	{
-		if (it->first == "basic" || it->first == "detailed" || it->first == "grid")
-			styles.push_back(std::pair<std::string, std::string>(it->first, _(it->first.c_str())));
-		else
-			styles.push_back(*it);
-	}
-
-	std::string viewMode = system->getSystemViewMode();
-
-	bool found = false;
-	for (auto it = styles.cbegin(); it != styles.cend(); it++)
-	{		
-		bool sel = (viewMode.empty() && it->first == "automatic") || viewMode == it->first;
-		if (sel)
-			found = true;
-
-		mViewMode->add(it->second, it->first, sel);
-	}
-
-	if (!found)
-		mViewMode->selectFirstItem();
-
-	if (UIModeController::getInstance()->isUIModeFull())
-	{
-		if (!isInRelevancyMode)
-		{
-			mMenu.addGroup(_("VIEW OPTIONS"));
-
-			if (showViewStyle)
-				mMenu.addWithLabel(_("GAMELIST VIEW STYLE"), mViewMode);
-
-			mMenu.addEntry(_("VIEW CUSTOMISATION"), true, [this, system]()
-			{
-				GuiMenu::openThemeConfiguration(mWindow, this, nullptr, system->getThemeFolder());
-			});
-		}
-
-		if (file->getType() == FOLDER && ((FolderData*) file)->isVirtualStorage())
-			fromPlaceholder = true;
-		else if (file->getType() == FOLDER && mSystem->getName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
-			fromPlaceholder = true;
+		mMenu.addGroup(_("OPTIONS"));
 		
-		if (!fromPlaceholder)
+		mMenu.addEntry(_("SCRAPE"), false, [this, game]
 		{
-			auto srcSystem = file->getSourceFileData()->getSystem();
+			ScraperSearchParams scraperParams;
+			scraperParams.game = game;
+			scraperParams.system = game->getSourceFileData()->getSystem();
+
+			GuiGameScraper* scr = new GuiGameScraper(mWindow, scraperParams, [game, scraperParams](const ScraperSearchResult& result)
+			{
+				game->importP2k(result.p2k);
+				game->getMetadata().importScrappedMetadata(result.mdl);	
+				ViewController::get()->onFileChanged(game, FILE_METADATA_CHANGED);
+			});
+
+			mWindow->pushGui(scr);
+
+			close();
+		});
+
+		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::ScriptId::EVMAPY) && game->getType() != FOLDER)
+		{
+			if (game->hasKeyboardMapping())
+			{
+				mMenu.addEntry(_("EDIT PAD TO KEYBOARD CONFIGURATION"), false, [this, game]
+				{ 
+					GuiMenu::editKeyboardMappings(mWindow, game, true); 
+					close();
+				});
+			}
+			else if (game->isFeatureSupported(EmulatorFeatures::Features::padTokeyboard))
+			{
+				mMenu.addEntry(_("CREATE PAD TO KEYBOARD CONFIGURATION"), false, [this, game]
+				{ 
+					GuiMenu::editKeyboardMappings(mWindow, game, true);
+					close();
+				});
+			}
+		}
+
+		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
+		{
+			auto srcSystem = game->getSourceFileData()->getSystem();
 			auto sysOptions = mSystem->isGroupSystem() ? srcSystem : mSystem;
 
-			bool showSystemOptions = ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS) && (sysOptions->hasFeatures() || sysOptions->hasEmulatorSelection());
-			/*
-			bool showGameOptions = (file != nullptr && file->getType() != FOLDER);
-
-			if (showGameOptions || showSystemOptions)
-				mMenu.addGroup(_("OPTIONS"));
-
-			if (showGameOptions)
+			if (game->getType() != FOLDER)
 			{
-				mMenu.addEntry(_("GAME OPTIONS"), true, [this, file] 
+				if (srcSystem->hasFeatures() || srcSystem->hasEmulatorSelection())
 				{
-					Window* window = mWindow;
-					window->pushGui(new GuiGameOptions(window, file));
-					delete this;
-				});
-			}
-			*/
-			if (showSystemOptions)
-			{
-				mMenu.addGroup(_("OPTIONS"));
-
-				if (file && file->hasKeyboardMapping())
-				{
-					mMenu.addEntry(_("VIEW PAD TO KEYBOARD INFORMATION"), true, [this, file]
+					mHasAdvancedGameOptions = true;
+					mMenu.addEntry(_("ADVANCED GAME OPTIONS"), false, [this, game]
 					{
-						GuiMenu::editKeyboardMappings(mWindow, file, false);
+						GuiMenu::popGameConfigurationGui(mWindow, game);
+						close();
 					});
 				}
-				else if (srcSystem->getKeyboardMapping().isValid())
-				{
-					mMenu.addEntry(_("VIEW PAD TO KEYBOARD INFORMATION"), true, [this, srcSystem]
-					{
-						GuiMenu::editKeyboardMappings(mWindow, srcSystem, false);
-					});
-				}
-
-				mMenu.addEntry(_("ADVANCED SYSTEM OPTIONS"), true, [this, sysOptions] { GuiMenu::popSystemConfigurationGui(mWindow, sysOptions); });
 			}
 		}
+
+		if (game->getType() == FOLDER)
+			mMenu.addEntry(_("EDIT FOLDER METADATA"), false, std::bind(&GuiGameOptions::openMetaDataEd, this));
+		else
+			mMenu.addEntry(_("EDIT THIS GAME'S METADATA"), false, std::bind(&GuiGameOptions::openMetaDataEd, this));
 	}
-
-	mMenu.setMaxHeight(Renderer::getScreenHeight() * 0.85f);
-	// center the menu
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-	mMenu.animateTo(Vector2f((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, (Renderer::getScreenHeight() - mMenu.getSize().y()) / 2));
-}
-
-void GuiGamelistOptions::addTextFilterToMenu()
-{
-	auto theme = ThemeData::getMenuTheme();
-	std::shared_ptr<Font> font = theme->Text.font;
-	unsigned int color = theme->Text.color;
-
-	auto idx = mSystem->getIndex(false);
-
-	if (idx != nullptr && idx->isFiltered())
+	else if (game->hasKeyboardMapping())
 	{
-		mMenu.addEntry(_("RESET FILTERS"), false, [this]
-		{
-			mSystem->deleteIndex();
-			mFiltersChanged = true;
-			delete this;
+		mMenu.addEntry(_("VIEW PAD TO KEYBOARD INFORMATION"), false, [this, game]
+		{ 
+			GuiMenu::editKeyboardMappings(mWindow, game, false);
+			close();
 		});
 	}
 
-	ComponentListRow row;
-	
-	auto lbl = std::make_shared<TextComponent>(mWindow, _("FILTER GAMES BY TEXT"), font, color);
-	row.addElement(lbl, true); // label
+	if (Renderer::isSmallScreen())
+	{	
+		mMenu.addButton(_("BACK"), _("go back"), [this] { close(); });
 
-	std::string searchText;
-	
-	if (idx != nullptr)
-		searchText = idx->getTextFilter();
-
-	mTextFilter = std::make_shared<TextComponent>(mWindow, searchText, font, color, ALIGN_RIGHT);
-	row.addElement(mTextFilter, true);
-
-	auto spacer = std::make_shared<GuiComponent>(mWindow);
-	spacer->setSize(Renderer::getScreenWidth() * 0.005f, 0);
-	row.addElement(spacer, false);
-
-	auto bracket = std::make_shared<ImageComponent>(mWindow);
-
-	auto searchIcon = theme->getMenuIcon("searchIcon");
-	bracket->setImage(searchIcon.empty() ? ":/search.svg" : searchIcon);
-
-	bracket->setResize(Vector2f(0, lbl->getFont()->getLetterHeight()));
-	row.addElement(bracket, false);
-
-	auto updateVal = [this](const std::string& newVal)
+		mMenu.setMaxHeight(Renderer::getScreenHeight() * 0.85f);
+		setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+		mMenu.animateTo(Vector2f((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, (Renderer::getScreenHeight() - mMenu.getSize().y()) / 2));
+	}
+	else
 	{
-		mTextFilter->setValue(Utils::String::toUpper(newVal));
+		float w = Math::min(Renderer::getScreenWidth() * 0.5, ThemeData::getMenuTheme()->Text.font->sizeText("S").x() * 33.0f);
+		w = Math::max(w, Renderer::getScreenWidth() / 3.0f);
 
-		auto index = mSystem->getIndex(!newVal.empty());
-		if (index != nullptr)
-		{
-			mFiltersChanged = true;
-
-			index->setTextFilter(newVal);
-			if (!index->isFiltered())
-				mSystem->deleteIndex();
-
-			delete this;
-		}
-	};
-
-	row.makeAcceptInputHandler([this, updateVal]
-	{
-		if (Settings::getInstance()->getBool("UseOSK"))
-			mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("FILTER GAMES BY TEXT"), mTextFilter->getValue(), updateVal, false));
-		else
-			mWindow->pushGui(new GuiTextEditPopup(mWindow, _("FILTER GAMES BY TEXT"), mTextFilter->getValue(), updateVal, false));
-	});
-
-	mMenu.addRow(row);
+		mMenu.setSize(w, Renderer::getScreenHeight() + 2);
+		/*mMenu.animateTo(
+			Vector2f(-w, -1),
+			Vector2f(-1, -1), AnimateFlags::OPACITY | AnimateFlags::POSITION);
+			*/
+		mMenu.animateTo(
+			Vector2f(Renderer::getScreenWidth(), -1),
+			Vector2f(Renderer::getScreenWidth() - w -1, -1), AnimateFlags::OPACITY | AnimateFlags::POSITION);
+	}
 }
 
-GuiGamelistOptions::~GuiGamelistOptions()
+GuiGameOptions::~GuiGameOptions()
 {
 	if (mSystem == nullptr)
 		return;
 
 	for (auto it = mSaveFuncs.cbegin(); it != mSaveFuncs.cend(); it++)
 		(*it)();
-
-	// apply sort
-	if (mListSort && !fromPlaceholder && mListSort->getSelected() != mSystem->getSortId())
-	{
-		mSystem->setSortId(mListSort->getSelected());
-		
-		FolderData* root = mSystem->getRootFolder();
-		/*
-		const FolderData::SortType& sort = FileSorts::getSortTypes().at(mListSort->getSelected());
-		root->sort(sort);
-		*/
-		// notify that the root folder was sorted
-		getGamelist()->onFileChanged(root, FILE_SORTED);
-	}
-
-	Vector2f gridSizeOverride(0, 0);
-
-	if (mGridSize != NULL)
-	{
-		auto str = mGridSize->getSelected();
-
-		size_t divider = str.find('x');
-		if (divider != std::string::npos)
-		{
-			std::string first = str.substr(0, divider);
-			std::string second = str.substr(divider + 1, std::string::npos);
-
-			gridSizeOverride = Vector2f((float)atof(first.c_str()), (float)atof(second.c_str()));
-		}
-		else
-			gridSizeOverride = mSystem->getGridSizeOverride();
-	}
-	else
-		gridSizeOverride = mSystem->getGridSizeOverride();
-
-	std::string viewMode = mViewMode->getSelected();
-
-	if (mSystem->getSystemViewMode() != (viewMode == "automatic" ? "" : viewMode))
-	{
-		for (auto sm : Settings::getInstance()->getStringMap())
-			if (Utils::String::startsWith(sm.first, "subset." + mSystem->getThemeFolder() + "."))
-				Settings::getInstance()->setString(sm.first, "");
-	}
-
-	bool viewModeChanged = mSystem->setSystemViewMode(viewMode, gridSizeOverride);
-
-	Settings::getInstance()->saveFile();
-
-	if (mReloadAll)
-	{
-		mWindow->renderSplashScreen(_("Loading..."));
-		ViewController::get()->reloadAll(mWindow);
-		mWindow->closeSplashScreen();
-	}
-	else if (mFiltersChanged || viewModeChanged)
-	{
-		if (viewModeChanged)
-		{
-			mSystem->loadTheme();
-			ViewController::get()->reloadSystemListViewTheme(mSystem);
-		}
-
-		if (!viewModeChanged && mSystem->isCollection())
-			CollectionSystemManager::get()->reloadCollection(getCustomCollectionName());
-		else
-			ViewController::get()->reloadGameListView(mSystem);
-	}
 }
 
-void GuiGamelistOptions::openGamelistFilter()
-{
-	mReloadAll = false;
-	mFiltersChanged = true;
-	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, mSystem);
-	mWindow->pushGui(ggf);
-}
-
-std::string GuiGamelistOptions::getCustomCollectionName()
+std::string GuiGameOptions::getCustomCollectionName()
 {
 	std::string editingSystem = mSystem->getName();
 
@@ -518,7 +547,31 @@ std::string GuiGamelistOptions::getCustomCollectionName()
 	return editingSystem;
 }
 
-void GuiGamelistOptions::openMetaDataEd()
+void GuiGameOptions::deleteGame(FileData* file)
+{
+	if (file->getType() != GAME)
+		return;
+
+	auto sourceFile = file->getSourceFileData();
+
+	auto sys = sourceFile->getSystem();
+	if (sys->isGroupChildSystem())
+		sys = sys->getParentGroupSystem();
+
+	CollectionSystemManager::get()->deleteCollectionFiles(sourceFile);
+	sourceFile->deleteGameFiles();
+
+	auto view = ViewController::get()->getGameListView(sys, false);
+	if (view != nullptr)
+		view.get()->remove(sourceFile);
+	else
+	{
+		sys->getRootFolder()->removeFromVirtualFolders(sourceFile);
+		delete sourceFile;
+	}
+}
+
+void GuiGameOptions::openMetaDataEd()
 {
 	if (ThreadedScraper::isRunning() || ThreadedHasher::isRunning())
 	{
@@ -528,189 +581,71 @@ void GuiGamelistOptions::openMetaDataEd()
 
 	// open metadata editor
 	// get the FileData that hosts the original metadata
-	FileData* file = getGamelist()->getCursor()->getSourceFileData();
+	FileData* file = mGame;
 	ScraperSearchParams p;
 	p.game = file;
 	p.system = file->getSystem();
 
 	std::function<void()> deleteBtnFunc = nullptr;
 
+	if (file->getType() == GAME)
+	{
+		auto sourceFile = file->getSourceFileData();
+		deleteBtnFunc = [sourceFile] { GuiGameOptions::deleteGame(sourceFile); };
+	}
+
 	SystemData* system = file->getSystem();
 	if (system->isGroupChildSystem())
 		system = system->getParentGroupSystem();
 
-	if (file->getType() == GAME)
-	{
-		deleteBtnFunc = [this, file, system]
-		{
-			auto pThis = this;
-
-			CollectionSystemManager::get()->deleteCollectionFiles(file);
-			file->deleteGameFiles();
-
-			auto view = ViewController::get()->getGameListView(system, false);
-			if (view != nullptr)
-				view.get()->remove(file);
-			else
-			{
-				system->getRootFolder()->removeFromVirtualFolders(file);
-				delete file;
-			}
-
-			delete pThis;
-		};
-	}
-
 	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->getMetadata(), file->getMetadata().getMDD(), p, Utils::FileSystem::getFileName(file->getPath()),
 		std::bind(&ViewController::onFileChanged, ViewController::get(), file, FILE_METADATA_CHANGED), deleteBtnFunc, file));
+
+	close();
 }
 
-void GuiGamelistOptions::jumpToLetter()
-{
-	char letter = mJumpToLetterList->getSelected();
-	IGameListView* gamelist = getGamelist();
-
-	if (mListSort->getSelected() != 0)
-	{
-		mListSort->selectFirstItem();
-		mSystem->setSortId(0);
-		
-		FolderData* root = mSystem->getRootFolder();
-		/*
-		const FolderData::SortType& sort = FileSorts::getSortTypes().at(0);
-		root->sort(sort);
-		*/
-		getGamelist()->onFileChanged(root, FILE_SORTED);
-	}
-
-	// this is a really shitty way to get a list of files
-	const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildrenListToDisplay();
-
-	long min = 0;
-	long max = (long)files.size() - 1;
-	long mid = 0;
-
-	while(max >= min)
-	{
-		mid = ((max - min) / 2) + min;
-
-		// game somehow has no first character to check
-		if(files.at(mid)->getName().empty())
-			continue;
-
-		char checkLetter = (char)toupper(files.at(mid)->getName()[0]);
-
-		if(checkLetter < letter)
-			min = mid + 1;
-		else if(checkLetter > letter || (mid > 0 && (letter == toupper(files.at(mid - 1)->getName()[0]))))
-			max = mid - 1;
-		else
-			break; //exact match found
-	}
-
-	gamelist->setCursor(files.at(mid));
-
-	delete this;
-}
-
-bool GuiGamelistOptions::input(InputConfig* config, Input input)
+bool GuiGameOptions::input(InputConfig* config, Input input)
 {
 	if ((config->isMappedTo(BUTTON_BACK, input) || config->isMappedTo("select", input)) && input.value)
 	{
-		delete this;
+		close();
+		return true;
+	}
+
+	if (mHasAdvancedGameOptions && config->isMappedTo("x", input) && input.value)
+	{
+		GuiMenu::popGameConfigurationGui(mWindow, mGame);
+		close();
 		return true;
 	}
 
 	return mMenu.input(config, input);
 }
 
-HelpStyle GuiGamelistOptions::getHelpStyle()
+HelpStyle GuiGameOptions::getHelpStyle()
 {
 	HelpStyle style = HelpStyle();
 	style.applyTheme(mSystem->getTheme(), "system");
 	return style;
 }
 
-std::vector<HelpPrompt> GuiGamelistOptions::getHelpPrompts()
+std::vector<HelpPrompt> GuiGameOptions::getHelpPrompts()
 {
 	auto prompts = mMenu.getHelpPrompts();
 	prompts.push_back(HelpPrompt(BUTTON_BACK, _("CLOSE")));
+
+	if (mHasAdvancedGameOptions)
+		prompts.push_back(HelpPrompt("x", _("ADVANCED GAME OPTIONS")));
+
 	return prompts;
 }
 
-IGameListView* GuiGamelistOptions::getGamelist()
+IGameListView* GuiGameOptions::getGamelist()
 {
-	if(mGamelist != nullptr)
-		return mGamelist; 
-	
 	return ViewController::get()->getGameListView(mSystem).get();
 }
 
-void GuiGamelistOptions::editCollectionFilters()
-{
-	std::map<std::string, CollectionSystemData> customCollections = CollectionSystemManager::get()->getCustomCollectionSystems();
-	auto customCollection = customCollections.find(getCustomCollectionName());
-	if (customCollection == customCollections.cend())
-		return;
-
-	if (customCollection->second.filteredIndex == nullptr)
-		return;
-
-	mReloadAll = false;
-	mFiltersChanged = true;
-	GuiGamelistFilter* ggf = new GuiGamelistFilter(mWindow, customCollection->second.filteredIndex);
-	mWindow->pushGui(ggf);
-}
-
-void GuiGamelistOptions::createNewCollectionFilter()
-{
-	std::string defName = Utils::String::toLower(mSystem->getIndex(false)->getTextFilter());
-
-	if (Settings::getInstance()->getBool("UseOSK"))
-		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("New Collection Name"), defName, [this](std::string val) { createCollection(val); }, false));
-	else
-		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("New Collection Name"), defName, [this](std::string val) { createCollection(val); }, false));
-
-}
-
-void GuiGamelistOptions::createCollection(std::string inName)
-{
-	std::string name = CollectionSystemManager::get()->getValidNewCollectionName(inName);
-
-	std::string setting = Settings::getInstance()->getString("CollectionSystemsCustom");
-	setting = setting.empty() ? name : setting + "," + name;
-	Settings::getInstance()->setString("CollectionSystemsCustom", setting);
-
-	CollectionFilter cf;
-	cf.createFromSystem(name, mSystem);
-	cf.save();
-
-	SystemData* newSys = CollectionSystemManager::get()->addNewCustomCollection(name);
-
-	mReloadAll = false;
-	mFiltersChanged = false;
-
-	Window* window = mWindow;
-
-	window->renderSplashScreen();
-
-	GuiComponent* topGui = window->peekGui();
-	window->removeGui(topGui);
-
-	while (window->peekGui() && window->peekGui() != ViewController::get())
-		delete window->peekGui();
-
-	CollectionSystemManager::get()->loadEnabledListFromSettings();
-	CollectionSystemManager::get()->updateSystemsList();
-	ViewController::get()->goToStart();
-	ViewController::get()->reloadAll();
-
-	ViewController::get()->goToSystemView(newSys);
-
-	window->closeSplashScreen();
-}
-
-void GuiGamelistOptions::deleteCollection()
+void GuiGameOptions::deleteCollection()
 {
 	if (getCustomCollectionName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
 		return;
@@ -725,15 +660,26 @@ void GuiGamelistOptions::deleteCollection()
 
 			if (CollectionSystemManager::get()->deleteCustomCollection(&customCollection->second))
 			{
-				mWindow->renderSplashScreen();
-		
+				mWindow->renderSplashScreen("");
+
 				CollectionSystemManager::get()->loadEnabledListFromSettings();
 				CollectionSystemManager::get()->updateSystemsList();
 				ViewController::get()->goToStart();
-				ViewController::get()->reloadAll();
+				ViewController::get()->reloadAll(mWindow);
 
-				mWindow->closeSplashScreen();
-				delete this;
+				mWindow->closeSplashScreen();			
 			}
-		}, _("NO"), nullptr));
+			delete this;
+		}, 
+		_("NO"), [this] 
+		{
+			delete this;
+		}));
+
+	
+}
+
+void GuiGameOptions::close()
+{
+	delete this;
 }
