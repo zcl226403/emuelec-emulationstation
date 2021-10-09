@@ -181,7 +181,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				}
     				else
     				{
-    					fclose(fp);
+    					fclose(fp);//判断是否启动服务器成功
     					runSystemCommand("systemd-run /usr/bin/netplaycheck", "", nullptr);
     					if ((fp=fopen("/storage/system/netplay.check","r"))==NULL)//判断文件是否为空
     					{
@@ -242,7 +242,11 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 
 				msgBox->addGroup(_("LAUNCH THE CLIENT"));
+				std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
+				if (clineport.empty())
+					SystemConf::getInstance()->set("global.netplay.clineport", "55435");
 				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clineport", false);
+				msgBox->addInputTextRow(_("LOCALIP"), "global.netplay.localip", false);
 
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY CLIENT"), false, [window, msgBox, game]
 				{
