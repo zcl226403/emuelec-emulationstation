@@ -177,13 +177,21 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
     					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
-						window->pushGui(new GuiMsgBox(window, _("Connect to the server starts successfully, if the access terminal connection is not successful, please check your network problem, tip: restart the host can close service."), _("OK"), nullptr));
+						window->pushGui(new GuiMsgBox(window, _("Is connect to the server"), _("OK"), nullptr));
     				}
     				else
     				{
-    					window->pushGui(new GuiMsgBox(window, _("Has been launched successfully, if the client is not the connection is successful, check the network, after restart to try again."), _("OK"), nullptr));
-						fclose(fp);
-						return;
+    					fclose(fp);
+    					runSystemCommand("systemd-run /usr/bin/netplaycheck", "", nullptr);
+    					if ((fp=fopen("/storage/system/netplay.check","r"))==NULL)//判断文件是否为空
+    					{
+    						window->pushGui(new GuiMsgBox(window, _("The server is connected"), _("OK"), nullptr));
+    					}
+    					else
+    					{
+    						window->pushGui(new GuiMsgBox(window, _("Server connection is successful"), _("OK"), nullptr));
+    						fclose(fp);
+    					}
     				}
     				msgBox->close();
 				});
@@ -194,12 +202,13 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				FILE *fp;
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
-						window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
+						window->pushGui(new GuiMsgBox(window, _("netplaye server has been closed"), _("OK"), nullptr));
     				}
     				else
     				{
     					runSystemCommand("killall netplay", "", nullptr);
-    					window->pushGui(new GuiMsgBox(window, _("Multiplayer server has been closed"), _("OK"), nullptr));
+    					window->pushGui(new GuiMsgBox(window, _("netplaye server has been closed"), _("OK"), nullptr));
+    					runSystemCommand("rm -rf /storage/system/netplay.check", "", nullptr);
 						fclose(fp);
     				}
     				msgBox->close();
