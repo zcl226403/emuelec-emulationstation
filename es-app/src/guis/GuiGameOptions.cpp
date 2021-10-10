@@ -176,7 +176,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				//判断是否有临时文件
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
-    					runSystemCommand("echo>/storage/system/version.check; vpckey=$(cat /storage/ipkey/key | tr -d '\r' | grep 'vkey=' | awk -F'=' '{print $2}'); echo $vpckey; netplay -server=139.9.249.246:8024 -vkey=$vpckey > /tmp/cache/netplay.log", "", nullptr);
+    					runSystemCommand("echo>/storage/system/version.check; vpckey=$(cat /storage/ipkey/key | tr -d '\r' | grep 'vkey=' | awk -F'=' '{print $2}'); nohup netplay -server=139.9.249.246:8024 -vkey=$vpckey > /tmp/cache/netplay.log", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Is connect to the server"), _("OK"), nullptr));
 						if ((fp=fopen("/tmp/cache/netplay.log","r"))!=NULL)
 						{
