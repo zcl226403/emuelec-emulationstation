@@ -176,14 +176,22 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				//判断是否有临时文件
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
-    					runSystemCommand("echo>/storage/system/version.check; vpckey=$(cat /storage/ipkey/key | tr -d "\r" | grep "vkey=" | awk -F'=' '{print $2}'); echo $vpckey; netplay -server=139.9.249.246:8024 -vkey=$vpckey > /tmp/cache/netplay.log", "", nullptr);
+    					runSystemCommand("echo>/storage/system/version.check; vpckey=$(cat /storage/ipkey/key | tr -d '\r' | grep 'vkey=' | awk -F'=' '{print $2}'); echo $vpckey; netplay -server=139.9.249.246:8024 -vkey=$vpckey > /tmp/cache/netplay.log", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Is connect to the server"), _("OK"), nullptr));
-						runSystemCommand("systemd-run /usr/bin/netplaycheck", "", nullptr);
+						if ((fp=fopen("/tmp/cache/netplay.log","r"))!=NULL)
+						{
+							runSystemCommand("if [[ `cat /tmp/cache/netplay.log | grep 'Successful'` ]];then echo>/storage/system/netplay.check; fi", "", nullptr);
+							fclose(fp);
+						}
     				}
     				else
     				{
     					fclose(fp);//判断是否启动服务器成功
-    					runSystemCommand("systemd-run /usr/bin/netplaycheck", "", nullptr);
+    					if ((fp=fopen("/tmp/cache/netplay.log","r"))!=NULL)
+						{
+							runSystemCommand("if [[ `cat /tmp/cache/netplay.log | grep 'Successful'` ]];then echo>/storage/system/netplay.check; fi", "", nullptr);
+							fclose(fp);
+						}
     					if ((fp=fopen("/storage/system/netplay.check","r"))==NULL)//判断文件是否为空
     					{
     						window->pushGui(new GuiMsgBox(window, _("The server is connected"), _("OK"), nullptr));
