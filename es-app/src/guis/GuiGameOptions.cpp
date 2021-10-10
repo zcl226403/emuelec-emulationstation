@@ -176,6 +176,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				//判断是否有临时文件
     				if ((fp=fopen("/storage/system/version.check","r"))==NULL)//判断文件是否为空
     				{
+    					runSystemCommand("echo>/storage/system/version.check;", "", nullptr);
     					runSystemCommand("systemd-run /usr/bin/vpcserver", "", nullptr);
 						window->pushGui(new GuiMsgBox(window, _("Is connect to the server"), _("OK"), nullptr));
 						if ((fp=fopen("/tmp/cache/netplay.log","r"))!=NULL)
