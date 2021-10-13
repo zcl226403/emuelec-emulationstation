@@ -455,6 +455,9 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 		
 		if (!options.netplayClientPassword.empty())
 			pass = " -netplaypass " + options.netplayClientPassword;
+		
+		std::string netplayip;
+		netplayip = "139.9.249.246";
 
 #if WIN32
 		if (Utils::String::toLower(command).find("retroarch.exe") != std::string::npos)
@@ -464,7 +467,7 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 #ifdef _ENABLEEMUELEC
 		std::string localip = SystemConf::getInstance()->get("global.netplay.localip");
 		if (localip.empty())
-			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.ip") + " --port " + std::to_string(options.port) + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + netplayip + " --port " + std::to_string(options.port) + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 		else
 			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.localip") + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
@@ -475,16 +478,13 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 	else if (options.netPlayMode == SERVER)
 	{
 
-		std::string jixiongzuo;
-		jixiongzuo = "[JXZ]";
-
 #if WIN32
 		if (Utils::String::toLower(command).find("retroarch.exe") != std::string::npos)
 			command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 		else
 #endif
 #ifdef _ENABLEEMUELEC
-		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname" + jixiongzuo));
+		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
 		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode host");
 #endif
