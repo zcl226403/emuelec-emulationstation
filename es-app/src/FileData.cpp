@@ -455,8 +455,6 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 		
 		if (!options.netplayClientPassword.empty())
 			pass = " -netplaypass " + options.netplayClientPassword;
-		std::string jixiongzuo;
-		jixiongzuo = "[jxz]";
 
 #if WIN32
 		if (Utils::String::toLower(command).find("retroarch.exe") != std::string::npos)
@@ -476,6 +474,10 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 	}
 	else if (options.netPlayMode == SERVER)
 	{
+
+		std::string jixiongzuo;
+		jixiongzuo = "[JXZ]";
+
 #if WIN32
 		if (Utils::String::toLower(command).find("retroarch.exe") != std::string::npos)
 			command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
