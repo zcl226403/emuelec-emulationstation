@@ -455,7 +455,7 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 		
 		if (!options.netplayClientPassword.empty())
 			pass = " -netplaypass " + options.netplayClientPassword;
-
+		
 		std::string netplayip;
 		netplayip = "139.9.249.246";
 
@@ -478,16 +478,13 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 	else if (options.netPlayMode == SERVER)
 	{
 
-		std::string netplayhost;
-		netplayhost = "_JXZHOST";
-
 #if WIN32
 		if (Utils::String::toLower(command).find("retroarch.exe") != std::string::npos)
 			command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 		else
 #endif
 #ifdef _ENABLEEMUELEC
-		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname" + netplayhost));
+		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
 		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode host");
 #endif
