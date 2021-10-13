@@ -216,7 +216,7 @@ if (!isKidUI) {
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "壹雄游艺主机设置");
+	auto s = new GuiSettings(mWindow, "极熊座游戏主机");
 
 	Window* window = mWindow;
 	std::string a;
