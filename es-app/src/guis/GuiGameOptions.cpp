@@ -255,7 +255,8 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 				msgBox->addGroup(_("LAUNCH THE CLIENT"));
 				std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
-				
+				if (clineport.empty())
+					SystemConf::getInstance()->set("global.netplay.clineport", "55435");
 				msgBox->addInputTextRow(_("CLIENTPORT"), "global.netplay.clineport", false);
 				msgBox->addInputTextRow(_("LOCALIP"), "global.netplay.localip", false);
 
