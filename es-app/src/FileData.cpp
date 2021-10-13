@@ -485,14 +485,7 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 #endif
 #ifdef _ENABLEEMUELEC
 
-		std::string JXZ;
-		std::string nickname2;
-		std::string nickpj;
-		nickname2 = SystemConf::getInstance()->get("global.netplay.nickname");
-		JXZ = "[JXZ-HOST]";
-		nickpj = nickname2 + JXZ;
-
-		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + nickpj);
+		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
 		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode host");
 #endif
