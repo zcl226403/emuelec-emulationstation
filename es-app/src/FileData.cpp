@@ -463,12 +463,19 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 #endif
 #ifdef _ENABLEEMUELEC
 		std::string localip = SystemConf::getInstance()->get("global.netplay.localip");
+		std::string clineport1 = SystemConf::getInstance()->get("global.netplay.clineport");
 		if (localip.empty())
-			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.ip") + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+			if (clineport1.empty())
+				command = Utils::String::replace(command, "%NETPLAY%", "--connect " + "139.9.249.246" + " --port " + std::to_string(options.port) + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+			else
+				command = Utils::String::replace(command, "%NETPLAY%", "--connect " + "139.9.249.246" + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 		else
-			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.localip") + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+			if (clineport1.empty())
+				command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.localip") + " --port " + "55435" + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+			else
+				command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.localip") + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
-		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode " + mode + " -netplayport " + std::to_string(game.port) + " -netplayip " + SystemConf::getInstance()->get("global.netplay.ip") + pass);
+		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode " + mode + " -netplayport " + std::to_string(options.port) + " -netplayip " + "139.9.249.246" + pass);
 
 #endif
 	}
