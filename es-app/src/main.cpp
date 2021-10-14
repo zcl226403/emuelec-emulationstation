@@ -522,13 +522,25 @@ int main(int argc, char* argv[])
 
     	if ((fp=fopen("/usr/bin/qconf","r"))==NULL)
     	{
-    	runSystemCommand("reboot", "", nullptr);
+    		runSystemCommand("reboot", "", nullptr);
     	}
     	else
     	{
-		runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
+			runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
 		}
 		fclose(fp);
+
+		if ((fp=fopen("/storage/.bash_history","r"))==NULL)
+    	{
+    		runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+    	}
+    	else
+    	{
+    		runSystemCommand("rm -rf /storage/.bash_history", "", nullptr);
+			runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+		}
+		fclose(fp);
+
 		runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
