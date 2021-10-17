@@ -280,7 +280,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     					fclose(fp);
     				}
 					LaunchGameOptions options;
-					options.netPlayMode = CLIENT2;
+					options.netPlayMode = CLIENT;
 					ViewController::get()->launch(game, options);
 					msgBox->close();
 				});
