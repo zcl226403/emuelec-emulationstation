@@ -492,7 +492,16 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 	}
 	else
 		command = Utils::String::replace(command, "%NETPLAY%", "");
-
+#ifdef _ENABLEEMUELEC
+	if (options.netPlayMode == CLIENT2)
+		std::string netplayip2;
+		netplayip2 = "139.9.249.246";
+		std::string localip = SystemConf::getInstance()->get("global.netplay.localip");
+		if (localip.empty())
+			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + netplayip2 + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+		else
+			command = Utils::String::replace(command, "%NETPLAY%", "--connect " + SystemConf::getInstance()->get("global.netplay.localip") + " --port " + SystemConf::getInstance()->get("global.netplay.clineport") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+#endif
 	int monitorId = Settings::getInstance()->getInt("MonitorID");
 	if (monitorId >= 0 && command.find(" -system ") != std::string::npos)
 		command = command + " -monitor " + std::to_string(monitorId);
