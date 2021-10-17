@@ -466,9 +466,9 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
 #endif
 #ifdef _ENABLEEMUELEC
 
-		command = Utils::String::replace(command, "%NETPLAY%", "--connect " + netplayip + " --port " + std::to_string(options.port) + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
+		command = Utils::String::replace(command, "%NETPLAY%", "--connect " + netplayip + " --port " + std::to_string(game.port) + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
-		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode " + mode + " -netplayport " + std::to_string(options.port) + " -netplayip " + SystemConf::getInstance()->get("global.netplay.ip") + pass);
+		command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode " + mode + " -netplayport " + std::to_string(game.port) + " -netplayip " + SystemConf::getInstance()->get("global.netplay.ip") + pass);
 
 #endif
 	}
