@@ -35,6 +35,7 @@ enum NetPlayMode
 {
 	DISABLED,
 	CLIENT,
+	CLIENT2,
 	SERVER,	
 	SPECTATOR
 };
@@ -101,14 +102,13 @@ public:
 	virtual std::string getKey();
 	const bool isArcadeAsset();
 	const bool isVerticalArcadeGame();
-	const bool isLightGunGame();
 	inline std::string getFullPath() { return getPath(); };
 	inline std::string getFileName() { return Utils::FileSystem::getFileName(getPath()); };
 	virtual FileData* getSourceFileData();
 	virtual std::string getSystemName() const;
 
 	// Returns our best guess at the "real" name for this file (will attempt to perform MAME name translation)
-	virtual std::string& getDisplayName();
+	std::string& getDisplayName();
 
 	// As above, but also remove parenthesis
 	std::string getCleanName();
@@ -144,9 +144,6 @@ public:
 
 	std::string getCurrentGameSetting(const std::string& settingName);
 
-	bool hasContentFiles();
-	std::set<std::string> getContentFiles();
-
 private:
 	std::string getKeyboardMappingFilePath();
 	MetaDataList mMetadata;
@@ -174,7 +171,6 @@ public:
 
 	virtual const MetaDataList& getMetadata() const { return mSourceFileData->getMetadata(); }
 	virtual MetaDataList& getMetadata() { return mSourceFileData->getMetadata(); }
-	virtual std::string& getDisplayName() { return mSourceFileData->getDisplayName(); }
 
 private:
 	// needs to be updated when metadata changes
