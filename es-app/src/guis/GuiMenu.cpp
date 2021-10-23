@@ -630,8 +630,11 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 			
 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[] { 
-				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
+				[mWindow] { 
+				window->pushGui(new GuiLoading<int>(window, _("PLEASE WAIT"), []
+				{
+					runSystemCommand("systemd-run /usr/bin/firmwareup &", "", nullptr);
+				}));			
 				}, _("NO"), nullptr));
      });
 
