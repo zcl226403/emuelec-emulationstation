@@ -630,12 +630,9 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 			
 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[] { 
-				Window* window = mWindow;
-				window->pushGui(new GuiLoading<int>(window, _("PLEASE WAIT"), []
-				{
-					runSystemCommand("systemd-run /usr/bin/firmwareup &", "", nullptr);
-				}));			
+				[mWindow] { 
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("Yixiong game entertainment reminder: \nresetting / upgrading, please do not do anything else.")));
+				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
