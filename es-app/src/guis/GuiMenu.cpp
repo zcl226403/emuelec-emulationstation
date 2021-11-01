@@ -569,21 +569,22 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 
     dangerZone->addEntry(_("RESET PSP TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the PSP game configuration to the initial state\nIf you have changed some PSP game settings, it will be reset,\nSelf added PSP game configuration will not be reset.\n\nAre you sure to reset the PSP game configuration to the initial state?"), _("YES"),
-				[mWindow] { 
+				[] { 
 				runSystemCommand("systemd-run /usr/bin/pspconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
     dangerZone->addEntry(_("RESET JOYPADS DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: the system will reset the game controller to its initial state\nIf you change the controller settings, it will be reset to the initial state,\n\nAre you sure to reset the game controller configuration to the initial state?"), _("YES"),
-				[mWindow] { 
+				[] { 
 				runSystemCommand("systemd-run /usr/bin/joypadconf", "", nullptr);
 				}, _("NO"), nullptr));
      });
      
     dangerZone->addEntry(_("RESET UPGRADE SYSTEM TO DEFAULT CONFIG"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: all configurations will be reset\nIf you change the controller, game, etc. settings, it will be reset.\n\nAre you sure to reset the system to the default settings?"), _("YES"),
-				[mWindow] { 			
+				[] { 
+				runSystemCommand("rm -rf /storage/.cache/connman/*", "", nullptr);			
 				runSystemCommand("systemd-run /usr/bin/alldef", "", nullptr);
 				}, _("NO"), nullptr));
      });
@@ -627,7 +628,8 @@ if (UIModeController::getInstance()->isUIModeFull()) //备份
 			
 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: UPDATE PLEASE BE PATIENT AND \nDON'T HAVE ANY OPERATION, MORE DON'T\n TRY TO PULL OUT PLUG."), _("YES"),
-				[mWindow] { 
+				[] { 
+				runSystemCommand("rm -rf /storage/.cache/connman/*", "", nullptr);
 				runSystemCommand("systemd-run /usr/bin/firmwareup", "", nullptr);
 				}, _("NO"), nullptr));
      });
