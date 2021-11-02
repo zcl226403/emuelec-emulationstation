@@ -226,7 +226,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				msgBox->close();
 				});
 				
-				bool PDWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled");
+				
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
@@ -234,6 +234,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
+					bool PDWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled");
 					if (PDWifiEnabled)
 					{
 						window->pushGui(new GuiMsgBox(window, _("Please turn off wifi, use cable connection"), _("OK"), nullptr));
@@ -273,7 +274,8 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 						return;
 					}
-					if (PDWifiEnabled)
+					bool PDWifiEnabled2 = SystemConf::getInstance()->getBool("wifi.enabled");
+					if (PDWifiEnabled2)
 					{
 						window->pushGui(new GuiMsgBox(window, _("Please turn off wifi, use cable connection"), _("OK"), nullptr));
 						return;
