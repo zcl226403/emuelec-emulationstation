@@ -410,9 +410,9 @@ bool SystemView::input(InputConfig* config, Input input)
 	if(input.value != 0)
 	{	
 		bool netPlay = SystemData::isNetplayActivated() && SystemConf::getInstance()->getBool("global.netplay");
-		bool PDWifiEnabled3 = SystemConf::getInstance()->getBool("wifi.enabled");
 		if (netPlay && config->isMappedTo("x", input))
 		{
+			bool PDWifiEnabled3 = SystemConf::getInstance()->getBool("wifi.enabled");
 			if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 			else if (PDWifiEnabled3)
