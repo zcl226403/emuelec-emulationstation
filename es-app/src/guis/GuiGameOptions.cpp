@@ -225,12 +225,18 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
     				}
     				msgBox->close();
 				});
-
+				
+				bool PDWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled");
 				msgBox->addEntry(_U("\uF144 ") + _("START NETPLAY HOST"), false, [window, msgBox, game]
 				{
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+					if (PDWifiEnabled)
+					{
+						window->pushGui(new GuiMsgBox(window, _("Please turn off wifi, use cable connection"), _("OK"), nullptr));
 						return;
 					}
 					//判断是否有KEY文件
@@ -252,7 +258,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					msgBox->close();
 				});
 
-
+				
 				msgBox->addGroup(_("LAUNCH THE CLIENT"));
 				std::string clineport = SystemConf::getInstance()->get("global.netplay.clineport");
 				if (clineport.empty())
@@ -265,6 +271,11 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
 						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+					if (PDWifiEnabled)
+					{
+						window->pushGui(new GuiMsgBox(window, _("Please turn off wifi, use cable connection"), _("OK"), nullptr));
 						return;
 					}
     				//判断是否有KEY文件
