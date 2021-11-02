@@ -416,9 +416,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 			else if (PDWifiEnabled3)
-			{
 				mwindow->pushGui(new GuiMsgBox(mwindow, _("Please turn off wifi, use cable connection"), _("OK"), nullptr));
-			}
 			else 
 				mWindow->pushGui(new GuiNetPlay(mWindow));
 
