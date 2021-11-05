@@ -254,15 +254,24 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 						return;
     				}
     				else
-    				{
-    					runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
+    				{	
     					fclose(fp);
+    					if ((fp=fopen("/storage/system/netplay.check","r"))==NULL)
+    					{
+    						window->pushGui(new GuiMsgBox(window, _("You do not open the online server, only local online, are you sure you start the game"), _("OK"), 
+    							[window] {
+    							runSystemCommand("md1=壹雄游艺设备有限公司出品; md2=$(cat /config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
+    							LaunchGameOptions options;
+								options.netPlayMode = SERVER;
+								ViewController::get()->launch(game, options);
+								msgBox->close();
+    						}, _("NO"), nullptr));
+    					}
+    					else
+    					{
+    						fclose(fp);
+    					}
     				}
-
-					LaunchGameOptions options;
-					options.netPlayMode = SERVER;
-					ViewController::get()->launch(game, options);
-					msgBox->close();
 				});
 
 				
