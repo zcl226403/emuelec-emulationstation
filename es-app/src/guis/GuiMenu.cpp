@@ -246,7 +246,7 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "极熊座游戏主机");
+	auto s = new GuiSettings(mWindow, "EmuELEC Settings");//极熊座
 
 	Window* window = mWindow;
 	std::string a;
@@ -455,7 +455,6 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});
 
-		//FPS帧数
        auto fps_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool fpsEnabled = SystemConf::getInstance()->get("global.showFPS") == "1";
 		fps_enabled->setState(fpsEnabled);
@@ -551,10 +550,10 @@ void GuiMenu::openEmuELECSettings()
 
 if (UIModeController::getInstance()->isUIModeFull())
 	{
-        //External Mount Options 外部设备
+        //External Mount Options
         s->addEntry(_("EXTERNAL MOUNT OPTIONS"), true, [this] { openExternalMounts(mWindow, "global"); });
 
-        //Danger zone options 危险区域
+        //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
     }
 
