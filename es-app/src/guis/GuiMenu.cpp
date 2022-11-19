@@ -140,10 +140,9 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 #endif
 
 #ifdef _ENABLEEMUELEC
-	if (isFullUI)
-	{
-		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* < emuelec */
-	}
+
+		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* 主机设置*/
+
 #endif
 
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) &&
@@ -155,8 +154,7 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 					return;
 				GuiRetroAchievements::show(mWindow); }, "iconRetroachievements");
 	
-	if (isFullUI)
-	{
+
 #if BATOCERA
 		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
 		addEntry(controllers_settings_label.c_str(), true, [this] { openControllersSettings(); }, "iconControllers");
@@ -198,7 +196,8 @@ if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			}
 		}
 #endif
-
+	if (isFullUI)
+	{
 		addEntry(_("SCRAPER").c_str(), true, [this] { openScraperSettings(); }, "iconScraper");		
 
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::BATOCERASTORE) || ApiSystem::getInstance()->isScriptingSupported(ApiSystem::THEMESDOWNLOADER) ||
@@ -246,7 +245,7 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "EmuELEC Settings");
+	auto s = new GuiSettings(mWindow, "极熊座游戏主机");
 
 	Window* window = mWindow;
 	std::string a;
@@ -400,6 +399,11 @@ void GuiMenu::openEmuELECSettings()
                 runSystemCommand("/usr/bin/emuelec-utils setauddev " +selectedaudio, "", nullptr);
             });
 #endif
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
+
+        //启动蓝牙
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
@@ -419,7 +423,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-
+//SSH
        auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool baseEnabled = SystemConf::getInstance()->get("ee_ssh.enabled") == "1";
 		sshd_enabled->setState(baseEnabled);
@@ -439,7 +443,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-			
+		//开机启动	
 		auto emuelec_boot_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "START AT BOOT", false);
 		std::vector<std::string> devices;
 		devices.push_back("Emulationstation");
@@ -454,7 +458,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-
+//显示帧数
        auto fps_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool fpsEnabled = SystemConf::getInstance()->get("global.showFPS") == "1";
 		fps_enabled->setState(fpsEnabled);
@@ -475,6 +479,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			});	
 */       
+		//ra启动画面
        auto splash_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool splashEnabled = SystemConf::getInstance()->get("ee_splash.enabled") == "1";
 		splash_enabled->setState(splashEnabled);
@@ -484,7 +489,7 @@ void GuiMenu::openEmuELECSettings()
                 SystemConf::getInstance()->set("ee_splash.enabled", splashenabled ? "1" : "0");
 				SystemConf::getInstance()->saveSystemConf();
 			});
-
+//开机画面
 	auto enable_bootvideo = std::make_shared<SwitchComponent>(mWindow);
 	bool bootEnabled = SystemConf::getInstance()->get("ee_bootvideo.enabled") == "1";
 	enable_bootvideo->setState(bootEnabled);
@@ -495,7 +500,7 @@ void GuiMenu::openEmuELECSettings()
 		SystemConf::getInstance()->set("ee_bootvideo.enabled", bootvideoenabled ? "1" : "0");
 		SystemConf::getInstance()->saveSystemConf();
 	});
-
+//引导视频
 	auto enable_randombootvideo = std::make_shared<SwitchComponent>(mWindow);
 	bool randombootEnabled = SystemConf::getInstance()->get("ee_randombootvideo.enabled") == "1";
 	enable_randombootvideo->setState(randombootEnabled);
@@ -508,9 +513,9 @@ void GuiMenu::openEmuELECSettings()
         SystemConf::getInstance()->set("ee_bootvideo.enabled", "1");
 		SystemConf::getInstance()->saveSystemConf();
 	});
-
+//YouTube
 	s->addInputTextRow(_("DEFAULT YOUTUBE SEARCH WORD"), "youtube.searchword", false);
-
+//独立模拟器
 #ifdef _ENABLEEMUELEC
 	auto theme = ThemeData::getMenuTheme();
 
@@ -524,7 +529,7 @@ void GuiMenu::openEmuELECSettings()
 	});
 	s->addRow(row);
 #endif
-
+//RA程序菜单
 		auto emuelec_retroarch_menu_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "RETROARCH MENU", false);
 		std::vector<std::string> ramenuoptions;
 		ramenuoptions.push_back("auto");
@@ -548,14 +553,13 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
-        //External Mount Options
+	}
+        //External Mount Options 外挂硬盘
         s->addEntry(_("EXTERNAL MOUNT OPTIONS"), true, [this] { openExternalMounts(mWindow, "global"); });
 
-        //Danger zone options
+        //Danger zone options  危险区域
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
-    }
+
 
     mWindow->pushGui(s);
 }
