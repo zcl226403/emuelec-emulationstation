@@ -182,9 +182,10 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			addEntry(_("NETWORK SETTINGS").c_str(), true, [this] { openNetworkSettings(); }, "iconNetwork");   
 #endif        
-
+if (isFullUI)
+{
 		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
-
+}
 		if (!ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 		{
 			for (auto system : SystemData::sSystemVector)
@@ -3746,7 +3747,7 @@ void GuiMenu::openThemeConfiguration(Window* mWindow, GuiComponent* s, std::shar
 void GuiMenu::openUISettings() 
 {
 	auto pthis = this;
-	Window* window = mWindow;
+	Window* window = mWindow;//开始
 
 	auto s = new GuiSettings(mWindow, _("UI SETTINGS").c_str());
 
@@ -3856,7 +3857,12 @@ void GuiMenu::openUISettings()
 				}
 			});
 		}		
-	}
+	}//结束
+
+//开始
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3903,12 +3909,16 @@ void GuiMenu::openUISettings()
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-
+}
 	mWindow->pushGui(s);
 }
 
 void GuiMenu::openSoundSettings()
 {
+	//开始
+if (UIModeController::getInstance()->isUIModeFull())
+	{
+
 	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
 
 	if (VolumeControl::getInstance()->isAvailable())
@@ -3937,7 +3947,8 @@ void GuiMenu::openSoundSettings()
 
 		s->addSwitch(_("SHOW OVERLAY WHEN VOLUME CHANGES"), "VolumePopup", true);
 	}
-
+}
+//结束
 	s->addGroup(_("MUSIC"));
 
 	s->addSwitch(_("FRONTEND MUSIC"), "audio.bgmusic", true, []
@@ -3950,7 +3961,9 @@ void GuiMenu::openSoundSettings()
 	
 	s->addSwitch(_("DISPLAY SONG TITLES"), "audio.display_titles", true);
 
-	// how long to display the song titles?
+if (UIModeController::getInstance()->isUIModeFull())
+	{
+	// how long to display the song titles?开始
 	auto titles_time = std::make_shared<SliderComponent>(mWindow, 2.f, 120.f, 2.f, "s");
 	titles_time->setValue(Settings::getInstance()->getInt("audio.display_titles_time"));
 	s->addWithLabel(_("SONG TITLE DISPLAY DURATION"), titles_time);
@@ -3960,8 +3973,8 @@ void GuiMenu::openSoundSettings()
 
 	s->addSwitch(_("ONLY PLAY SYSTEM-SPECIFIC MUSIC FOLDER"), "audio.persystem", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); } );
 	s->addSwitch(_("PLAY SYSTEM-SPECIFIC MUSIC"), "audio.thememusics", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); });	
-	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);
-
+	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);//结束
+}
 	s->addGroup(_("SOUNDS"));
 
 	s->addSwitch(_("ENABLE NAVIGATION SOUNDS"), "EnableSounds", true, []
