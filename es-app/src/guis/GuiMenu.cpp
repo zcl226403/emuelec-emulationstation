@@ -402,6 +402,10 @@ void GuiMenu::openEmuELECSettings()
                 runSystemCommand("/usr/bin/emuelec-utils setauddev " +selectedaudio, "", nullptr);
             });
 #endif
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
+
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
@@ -549,7 +553,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-
+}
 if (UIModeController::getInstance()->isUIModeFull())
 	{
         //External Mount Options
