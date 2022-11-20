@@ -404,7 +404,8 @@ void GuiMenu::openEmuELECSettings()
             });
 #endif
 
-
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
         //full开始
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);//蓝牙
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
@@ -553,7 +554,7 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});//full结束
-	
+//	}
 //if (UIModeController::getInstance()->isUIModeFull())
 //	{
         //External Mount Options
@@ -3860,8 +3861,8 @@ void GuiMenu::openUISettings()
 
 //开始
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3908,15 +3909,15 @@ if (UIModeController::getInstance()->isUIModeFull())
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-	}
+//	}
 	mWindow->pushGui(s);
 }
 
 void GuiMenu::openSoundSettings()
 {
 	//开始
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
 
 	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
 
@@ -3946,7 +3947,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 
 		s->addSwitch(_("SHOW OVERLAY WHEN VOLUME CHANGES"), "VolumePopup", true);
 	}
-}
+//}
 //结束
 	s->addGroup(_("MUSIC"));
 
@@ -3960,8 +3961,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 	
 	s->addSwitch(_("DISPLAY SONG TITLES"), "audio.display_titles", true);
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
 	// how long to display the song titles?开始
 	auto titles_time = std::make_shared<SliderComponent>(mWindow, 2.f, 120.f, 2.f, "s");
 	titles_time->setValue(Settings::getInstance()->getInt("audio.display_titles_time"));
@@ -3973,7 +3974,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 	s->addSwitch(_("ONLY PLAY SYSTEM-SPECIFIC MUSIC FOLDER"), "audio.persystem", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); } );
 	s->addSwitch(_("PLAY SYSTEM-SPECIFIC MUSIC"), "audio.thememusics", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); });	
 	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);//结束
-}
+//}
 	s->addGroup(_("SOUNDS"));
 
 	s->addSwitch(_("ENABLE NAVIGATION SOUNDS"), "EnableSounds", true, []
