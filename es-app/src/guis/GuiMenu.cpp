@@ -3914,8 +3914,8 @@ void GuiMenu::openSoundSettings()
 {
 
 	//sound start
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 
 	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
 
@@ -3945,7 +3945,7 @@ void GuiMenu::openSoundSettings()
 
 		s->addSwitch(_("SHOW OVERLAY WHEN VOLUME CHANGES"), "VolumePopup", true);
 	}
-//	}
+	}
 //sound end
 	s->addGroup(_("MUSIC"));
 
