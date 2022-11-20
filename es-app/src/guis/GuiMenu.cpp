@@ -248,7 +248,7 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "EmuELEC Settings");
+	auto s = new GuiSettings(mWindow, "Jxz Settings");
 
 	Window* window = mWindow;
 	std::string a;
