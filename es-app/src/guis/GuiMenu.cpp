@@ -404,8 +404,7 @@ void GuiMenu::openEmuELECSettings()
             });
 #endif
 
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+
         //full开始
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);//蓝牙
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
@@ -554,7 +553,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});//full结束
-	}
+	
 //if (UIModeController::getInstance()->isUIModeFull())
 //	{
         //External Mount Options
@@ -3861,7 +3860,8 @@ void GuiMenu::openUISettings()
 
 //开始
 
-
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3908,9 +3908,9 @@ void GuiMenu::openUISettings()
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-}
+	}
 	mWindow->pushGui(s);
-
+}
 
 void GuiMenu::openSoundSettings()
 {
