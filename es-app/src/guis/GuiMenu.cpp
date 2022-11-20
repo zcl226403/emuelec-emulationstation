@@ -3914,11 +3914,9 @@ void GuiMenu::openSoundSettings()
 {
 
 	//sound start
+	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
 if (UIModeController::getInstance()->isUIModeFull())
 	{
-
-	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
-
 	if (VolumeControl::getInstance()->isAvailable())
 	{
 		s->addGroup(_("VOLUME"));
@@ -3958,8 +3956,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 	});
 	
 	s->addSwitch(_("DISPLAY SONG TITLES"), "audio.display_titles", true);
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	// how long to display the song titles?
 	auto titles_time = std::make_shared<SliderComponent>(mWindow, 2.f, 120.f, 2.f, "s");
 	titles_time->setValue(Settings::getInstance()->getInt("audio.display_titles_time"));
@@ -3971,7 +3969,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 	s->addSwitch(_("ONLY PLAY SYSTEM-SPECIFIC MUSIC FOLDER"), "audio.persystem", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); } );
 	s->addSwitch(_("PLAY SYSTEM-SPECIFIC MUSIC"), "audio.thememusics", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); });	
 	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);
-//}
+	}
 	s->addGroup(_("SOUNDS"));
 
 	s->addSwitch(_("ENABLE NAVIGATION SOUNDS"), "EnableSounds", true, []
