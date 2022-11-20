@@ -555,14 +555,14 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});//full结束
 //	}
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
+if (UIModeController::getInstance()->isUIModeFull())
+	{
         //External Mount Options
         s->addEntry(_("EXTERNAL MOUNT OPTIONS"), true, [this] { openExternalMounts(mWindow, "global"); });
 
         //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
- //   }
+   }
 
     mWindow->pushGui(s);
 }
