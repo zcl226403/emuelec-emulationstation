@@ -140,10 +140,10 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 #endif
 
 #ifdef _ENABLEEMUELEC
-	if (isFullUI)
-	{
-		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* < emuelec */
-	}
+//	if (isFullUI)
+//	{
+		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* 主机设置 */
+//	}
 #endif
 
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) &&
@@ -155,8 +155,7 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 					return;
 				GuiRetroAchievements::show(mWindow); }, "iconRetroachievements");
 	
-	if (isFullUI)
-	{
+
 #if BATOCERA
 		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
 		addEntry(controllers_settings_label.c_str(), true, [this] { openControllersSettings(); }, "iconControllers");
@@ -198,6 +197,9 @@ if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			}
 		}
 #endif
+
+	if (isFullUI)
+	{
 
 		addEntry(_("SCRAPER").c_str(), true, [this] { openScraperSettings(); }, "iconScraper");		
 
@@ -246,12 +248,12 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "EmuELEC Settings");//极熊座
+	auto s = new GuiSettings(mWindow, "Jxz GAME");//极熊座
 
 	Window* window = mWindow;
 	std::string a;
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)
-	auto emuelec_video_mode = std::make_shared< OptionListComponent<std::string> >(mWindow, "VIDEO MODE", false);
+	auto emuelec_video_mode = std::make_shared< OptionListComponent<std::string> >(mWindow, "VIDEO MODE", false);//分辨率
         std::vector<std::string> videomode;
 		videomode.push_back("1080p60hz");
 		videomode.push_back("1080i60hz");
@@ -376,7 +378,7 @@ void GuiMenu::openEmuELECSettings()
 		});
 #endif	
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)		
-		auto emuelec_audiodev_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "AUDIO DEVICE", false);
+		auto emuelec_audiodev_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "AUDIO DEVICE", false);//音频
 		std::vector<std::string> Audiodevices;
 		Audiodevices.push_back("auto");
 		Audiodevices.push_back("0,0");
@@ -400,7 +402,11 @@ void GuiMenu::openEmuELECSettings()
                 runSystemCommand("/usr/bin/emuelec-utils setauddev " +selectedaudio, "", nullptr);
             });
 #endif
-        auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
+
+if (UIModeController::getInstance()->isUIModeFull())
+	{
+        //full开始
+        auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);//蓝牙
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
 		s->addWithLabel(_("ENABLE BLUETOOTH"), bluetoothd_enabled);
@@ -420,7 +426,7 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});
 
-       auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);
+       auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);//ssh
 		bool baseEnabled = SystemConf::getInstance()->get("ee_ssh.enabled") == "1";
 		sshd_enabled->setState(baseEnabled);
 		s->addWithLabel(_("ENABLE SSH"), sshd_enabled);
@@ -546,16 +552,16 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->set("global.retroarch.menu_driver", selectedretroarch_menu);
 				SystemConf::getInstance()->saveSystemConf();
 			}
-		});
-
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+		});//full结束
+	}
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
         //External Mount Options
         s->addEntry(_("EXTERNAL MOUNT OPTIONS"), true, [this] { openExternalMounts(mWindow, "global"); });
 
         //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
-    }
+ //   }
 
     mWindow->pushGui(s);
 }
