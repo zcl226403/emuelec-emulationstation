@@ -3858,8 +3858,8 @@ void GuiMenu::openUISettings()
 		}		
 	}
 
-if (UIModeController::getInstance()->isUIModeFull())
-{
+//if (UIModeController::getInstance()->isUIModeFull())
+//	{
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3906,7 +3906,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-}
+//}
 	mWindow->pushGui(s);
 }
 
