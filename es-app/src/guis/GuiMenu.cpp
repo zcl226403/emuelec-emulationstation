@@ -403,7 +403,7 @@ void GuiMenu::openEmuELECSettings()
             });
 #endif
 
-if (UIModeController::getInstance()->isUIModeFull())/*主机设置蓝牙开始*/
+if (UIModeController::getInstance()->isUIModeFull())
 	{
 
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
@@ -553,7 +553,7 @@ if (UIModeController::getInstance()->isUIModeFull())/*主机设置蓝牙开始*/
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-}/*主机设置RA程序菜单结束*/
+}
 //if (UIModeController::getInstance()->isUIModeFull())
 	//{
         //External Mount Options
