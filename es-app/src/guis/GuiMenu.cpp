@@ -403,7 +403,7 @@ void GuiMenu::openEmuELECSettings()
             });
 #endif
 
-if (UIModeController::getInstance()->isUIModeFull())
+if (UIModeController::getInstance()->isUIModeFull())/*主机设置蓝牙开始*/
 	{
 
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
@@ -553,15 +553,15 @@ if (UIModeController::getInstance()->isUIModeFull())
 				SystemConf::getInstance()->saveSystemConf();
 			}
 		});
-}
-if (UIModeController::getInstance()->isUIModeFull())
-	{
+}/*主机设置RA程序菜单结束*/
+//if (UIModeController::getInstance()->isUIModeFull())
+	//{
         //External Mount Options
         s->addEntry(_("EXTERNAL MOUNT OPTIONS"), true, [this] { openExternalMounts(mWindow, "global"); });
 
         //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
-    }
+   // }
 
     mWindow->pushGui(s);
 }
@@ -3858,6 +3858,9 @@ void GuiMenu::openUISettings()
 		}		
 	}
 
+if (UIModeController::getInstance()->isUIModeFull())
+{
+
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
 	s->addOptionList(_("LIST TRANSITION STYLE"), { { _("auto"), "auto" },{ _("fade") , "fade" },{ _("slide"), "slide" },{ _("fade & slide"), "fade & slide" },{ _("instant"), "instant" } }, "TransitionStyle", true);
@@ -3903,7 +3906,7 @@ void GuiMenu::openUISettings()
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-
+}
 	mWindow->pushGui(s);
 }
 
