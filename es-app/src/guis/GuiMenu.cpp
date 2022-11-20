@@ -140,10 +140,10 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 #endif
 
 #ifdef _ENABLEEMUELEC
-//	if (isFullUI)
-//	{
-		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* 主机设置 */
-//	}
+	if (isFullUI)
+	{
+		addEntry(_("EMUELEC SETTINGS").c_str(), true, [this] { openEmuELECSettings(); }, "iconEmuelec"); /* < emuelec */
+	}
 #endif
 
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) &&
@@ -155,7 +155,8 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 					return;
 				GuiRetroAchievements::show(mWindow); }, "iconRetroachievements");
 	
-
+	if (isFullUI)
+	{
 #if BATOCERA
 		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
 		addEntry(controllers_settings_label.c_str(), true, [this] { openControllersSettings(); }, "iconControllers");
@@ -182,10 +183,9 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			addEntry(_("NETWORK SETTINGS").c_str(), true, [this] { openNetworkSettings(); }, "iconNetwork");   
 #endif        
-//if (isFullUI)
-//{
+
 		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
-//}
+
 		if (!ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 		{
 			for (auto system : SystemData::sSystemVector)
@@ -198,9 +198,6 @@ if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
 			}
 		}
 #endif
-
-	if (isFullUI)
-	{
 
 		addEntry(_("SCRAPER").c_str(), true, [this] { openScraperSettings(); }, "iconScraper");		
 
@@ -249,12 +246,12 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "Jxz GAME");//极熊座
+	auto s = new GuiSettings(mWindow, "EmuELEC Settings");
 
 	Window* window = mWindow;
 	std::string a;
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)
-	auto emuelec_video_mode = std::make_shared< OptionListComponent<std::string> >(mWindow, "VIDEO MODE", false);//分辨率
+	auto emuelec_video_mode = std::make_shared< OptionListComponent<std::string> >(mWindow, "VIDEO MODE", false);
         std::vector<std::string> videomode;
 		videomode.push_back("1080p60hz");
 		videomode.push_back("1080i60hz");
@@ -379,7 +376,7 @@ void GuiMenu::openEmuELECSettings()
 		});
 #endif	
 #if !defined(_ENABLEGAMEFORCE) && !defined(ODROIDGOA)		
-		auto emuelec_audiodev_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "AUDIO DEVICE", false);//音频
+		auto emuelec_audiodev_def = std::make_shared< OptionListComponent<std::string> >(mWindow, "AUDIO DEVICE", false);
 		std::vector<std::string> Audiodevices;
 		Audiodevices.push_back("auto");
 		Audiodevices.push_back("0,0");
@@ -403,11 +400,7 @@ void GuiMenu::openEmuELECSettings()
                 runSystemCommand("/usr/bin/emuelec-utils setauddev " +selectedaudio, "", nullptr);
             });
 #endif
-
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
-        //full开始
-        auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);//蓝牙
+        auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
 		s->addWithLabel(_("ENABLE BLUETOOTH"), bluetoothd_enabled);
@@ -427,7 +420,7 @@ void GuiMenu::openEmuELECSettings()
 			}
 		});
 
-       auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);//ssh
+       auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool baseEnabled = SystemConf::getInstance()->get("ee_ssh.enabled") == "1";
 		sshd_enabled->setState(baseEnabled);
 		s->addWithLabel(_("ENABLE SSH"), sshd_enabled);
@@ -553,8 +546,8 @@ void GuiMenu::openEmuELECSettings()
 				SystemConf::getInstance()->set("global.retroarch.menu_driver", selectedretroarch_menu);
 				SystemConf::getInstance()->saveSystemConf();
 			}
-		});//full结束
-//	}
+		});
+
 if (UIModeController::getInstance()->isUIModeFull())
 	{
         //External Mount Options
@@ -562,7 +555,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 
         //Danger zone options
         s->addEntry(_("DANGER ZONE"), true, [this] { openDangerZone(mWindow, "global"); });
-   }
+    }
 
     mWindow->pushGui(s);
 }
@@ -3747,7 +3740,7 @@ void GuiMenu::openThemeConfiguration(Window* mWindow, GuiComponent* s, std::shar
 void GuiMenu::openUISettings() 
 {
 	auto pthis = this;
-	Window* window = mWindow;//开始
+	Window* window = mWindow;
 
 	auto s = new GuiSettings(mWindow, _("UI SETTINGS").c_str());
 
@@ -3857,12 +3850,7 @@ void GuiMenu::openUISettings()
 				}
 			});
 		}		
-	}//结束
-
-//开始
-
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
+	}
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3909,16 +3897,12 @@ void GuiMenu::openUISettings()
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-//	}
+
 	mWindow->pushGui(s);
 }
 
 void GuiMenu::openSoundSettings()
 {
-	//开始
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
-
 	auto s = new GuiSettings(mWindow, _("SOUND SETTINGS").c_str());
 
 	if (VolumeControl::getInstance()->isAvailable())
@@ -3947,8 +3931,7 @@ void GuiMenu::openSoundSettings()
 
 		s->addSwitch(_("SHOW OVERLAY WHEN VOLUME CHANGES"), "VolumePopup", true);
 	}
-//}
-//结束
+
 	s->addGroup(_("MUSIC"));
 
 	s->addSwitch(_("FRONTEND MUSIC"), "audio.bgmusic", true, []
@@ -3961,9 +3944,7 @@ void GuiMenu::openSoundSettings()
 	
 	s->addSwitch(_("DISPLAY SONG TITLES"), "audio.display_titles", true);
 
-//if (UIModeController::getInstance()->isUIModeFull())
-//	{
-	// how long to display the song titles?开始
+	// how long to display the song titles?
 	auto titles_time = std::make_shared<SliderComponent>(mWindow, 2.f, 120.f, 2.f, "s");
 	titles_time->setValue(Settings::getInstance()->getInt("audio.display_titles_time"));
 	s->addWithLabel(_("SONG TITLE DISPLAY DURATION"), titles_time);
@@ -3973,8 +3954,8 @@ void GuiMenu::openSoundSettings()
 
 	s->addSwitch(_("ONLY PLAY SYSTEM-SPECIFIC MUSIC FOLDER"), "audio.persystem", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); } );
 	s->addSwitch(_("PLAY SYSTEM-SPECIFIC MUSIC"), "audio.thememusics", true, [] { AudioManager::getInstance()->changePlaylist(ViewController::get()->getState().getSystem()->getTheme(), true); });	
-	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);//结束
-//}
+	s->addSwitch(_("LOWER MUSIC WHEN PLAYING VIDEO"), "VideoLowersMusic", true);
+
 	s->addGroup(_("SOUNDS"));
 
 	s->addSwitch(_("ENABLE NAVIGATION SOUNDS"), "EnableSounds", true, []
