@@ -204,6 +204,8 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			});
 		}
 
+if (UIModeController::getInstance()->isUIModeFull())
+{
 		SystemData* all = SystemData::getSystem("all");
 		if (all != nullptr && game != nullptr && game->getType() != FOLDER && !isImageViewer)
 		{
@@ -228,9 +230,9 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				close();
 			});
 		}
-
-		if (UIModeController::getInstance()->isUIModeFull())
-		{
+}
+	//	if (UIModeController::getInstance()->isUIModeFull())
+	//	{
 			mMenu.addEntry(isImageViewer ? _("DELETE ITEM") : _("DELETE GAME"), false, [this, game]
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("THIS WILL DELETE THE ACTUAL GAME FILE(S)!\nARE YOU SURE?"), _("YES"),
@@ -243,7 +245,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 
 			});
-		}
+	//	}
 	}
 
 	bool isCustomCollection = (mSystem->isCollection() && game->getType() == FOLDER && CollectionSystemManager::get()->isCustomCollection(mSystem->getName()));
@@ -253,7 +255,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 	{
 		if (isCustomCollection || isAppendableToCollection)
 			mMenu.addGroup(_("COLLECTIONS"));
-
+	}
 		if (isAppendableToCollection)
 		{
 			char trstring[1024];
@@ -326,7 +328,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 		if (isCustomCollection)
 			mMenu.addEntry(_("DELETE COLLECTION"), false, std::bind(&GuiGameOptions::deleteCollection, this));
-	}
+//	}
 
 	bool fromPlaceholder = game->isPlaceHolder();
 	if (isImageViewer)
@@ -336,8 +338,11 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 	else if (game->getType() == FOLDER && mSystem->isCollection()) // >getName() == CollectionSystemManager::get()->getCustomCollectionsBundle()->getName())
 		fromPlaceholder = true;
 
-	if (!fromPlaceholder && !isCustomCollection && UIModeController::getInstance()->isUIModeFull())
+	if (!fromPlaceholder && !isCustomCollection) /* && UIModeController::getInstance()->isUIModeFull())*/
 	{
+
+	if (UIModeController::getInstance()->isUIModeFull())
+	{	
 		mMenu.addGroup(_("OPTIONS"));
 		
 		mMenu.addEntry(_("SCRAPE"), false, [this, game]
@@ -380,6 +385,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				});
 			}
 		}
+	}
 
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 		{
@@ -400,10 +406,14 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 			}
 		}
 
+	if (UIModeController::getInstance()->isUIModeFull())
+	{
 		if (game->getType() == FOLDER)
 			mMenu.addEntry(_("EDIT FOLDER METADATA"), false, std::bind(&GuiGameOptions::openMetaDataEd, this));
 		else
 			mMenu.addEntry(_("EDIT THIS GAME'S METADATA"), false, std::bind(&GuiGameOptions::openMetaDataEd, this));
+	}
+	
 	}
 	else if (game->hasKeyboardMapping())
 	{
