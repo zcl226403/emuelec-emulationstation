@@ -2516,7 +2516,7 @@ void GuiMenu::openGamesSettings()
 
 	s->addGroup(_("DEFAULT GLOBAL SETTINGS"));
 
-	// Screen ratio choice
+	// Screen ratio choice  youxi huamian bili
 	if (!hasGlobalFeature("ratio"))
 	{
 		auto ratio_choice = createRatioOptionList(mWindow, "global");
@@ -2524,7 +2524,7 @@ void GuiMenu::openGamesSettings()
 		s->addSaveFunc([ratio_choice] { SystemConf::getInstance()->set("global.ratio", ratio_choice->getSelected()); });
 	}
 #ifndef _ENABLEEMUELEC
-	// video resolution mode
+	// video resolution mode   shipin fenbianlv
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RESOLUTION) && !hasGlobalFeature("videomode"))
 	{
 		auto videoModeOptionList = createVideoResolutionModeOptionList(mWindow, "global");
@@ -2533,7 +2533,10 @@ void GuiMenu::openGamesSettings()
 	}
 #endif
 
-	// smoothing	
+
+if (UIModeController::getInstance()->isUIModeFull())
+{ //kaishi
+	// smoothing	pinghuade   (quchu)
 	if (!hasGlobalFeature("smooth"))
 	{
 		auto smoothing_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SMOOTH GAMES (BILINEAR FILTERING)"));
@@ -2542,7 +2545,7 @@ void GuiMenu::openGamesSettings()
 		s->addSaveFunc([smoothing_enabled] { SystemConf::getInstance()->set("global.smooth", smoothing_enabled->getSelected()); });
 	}
 #ifdef _ENABLEEMUELEC
-	// bezel
+	// bezel(quchu)
 	auto bezel_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("ENABLE RA BEZELS"));
 	bezel_enabled->add(_("AUTO"), "auto", SystemConf::getInstance()->get("global.bezel") != "0" && SystemConf::getInstance()->get("global.bezel") != "1");
 	bezel_enabled->add(_("ON"), "1", SystemConf::getInstance()->get("global.bezel") == "1");
@@ -2550,7 +2553,7 @@ void GuiMenu::openGamesSettings()
 	s->addWithLabel(_("ENABLE RA BEZELS"), bezel_enabled);
     s->addSaveFunc([bezel_enabled] { SystemConf::getInstance()->set("global.bezel", bezel_enabled->getSelected()); });
 	
-	//maxperf
+	//maxperf(shanchu)
 	auto maxperf_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("ENABLE MAX PERFORMANCE"));
 	maxperf_enabled->add(_("ON"), "1", SystemConf::getInstance()->get("global.maxperf") == "1" || SystemConf::getInstance()->get("global.maxperf") != "0");
 	maxperf_enabled->add(_("OFF"), "0", SystemConf::getInstance()->get("global.maxperf") == "0");
@@ -2558,7 +2561,7 @@ void GuiMenu::openGamesSettings()
     s->addSaveFunc([maxperf_enabled] { SystemConf::getInstance()->set("global.maxperf", maxperf_enabled->getSelected()); });
 #endif
 
-	// rewind
+	// rewind(shanchu)
 	if (!hasGlobalFeature("rewind"))
 	{
 		auto rewind_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("REWIND"));
@@ -2566,7 +2569,7 @@ void GuiMenu::openGamesSettings()
 		s->addWithLabel(_("REWIND"), rewind_enabled);
 		s->addSaveFunc([rewind_enabled] { SystemConf::getInstance()->set("global.rewind", rewind_enabled->getSelected()); });
 	}
-	
+} //jieshu	
 	// Integer scale
 	if (!hasGlobalFeature("integerscale"))
 	{
@@ -2576,12 +2579,14 @@ void GuiMenu::openGamesSettings()
 		s->addSaveFunc([integerscale_enabled] { SystemConf::getInstance()->set("global.integerscale", integerscale_enabled->getSelected()); });
 	}
 
-	// Integer scale overscale
+if (UIModeController::getInstance()->isUIModeFull())
+{ //kaishi
+	// Integer scale overscale(shanchu)
 	auto integerscaleoverscale_enabled = std::make_shared<OptionListComponent<std::string>>(mWindow, _("INTEGER SCALING (OVERSCALE)"));
 	integerscaleoverscale_enabled->addRange({ { _("AUTO"), "auto" },{ _("ON") , "1" },{ _("OFF") , "0" } }, SystemConf::getInstance()->get("global.integerscaleoverscale"));
 	s->addWithLabel(_("INTEGER SCALING (OVERSCALE)"), integerscaleoverscale_enabled);
 	s->addSaveFunc([integerscaleoverscale_enabled] { SystemConf::getInstance()->set("global.integerscaleoverscale", integerscaleoverscale_enabled->getSelected()); });
-
+} //jieshu
 	// Shaders preset
 #ifndef _ENABLEEMUELEC	
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::SHADERS) && !hasGlobalFeature("shaderset"))
@@ -2703,10 +2708,12 @@ void GuiMenu::openGamesSettings()
 		}
 	}
 #endif	
-	// latency reduction
+	// latency reduction (quchu)
+if (UIModeController::getInstance()->isUIModeFull())
+{ //kaishi
 	if (!hasGlobalFeature("runahead"))
 		s->addEntry(_("LATENCY REDUCTION"), true, [this] { openLatencyReductionConfiguration(mWindow, "global"); });
-
+} //jieshu
 	//AI-enabled translations
 	if (!hasGlobalFeature("ai_service_enabled"))
 	{
@@ -2787,16 +2794,18 @@ void GuiMenu::openGamesSettings()
 		s->addSaveFunc([autoControllers] { SystemConf::getInstance()->set("global.disableautocontrollers", autoControllers->getState() ? "" : "1"); });
 	}
 
-	// Custom config for systems
+if (UIModeController::getInstance()->isUIModeFull())
+{ //kaishi
+	// Custom config for systems(shanchu)
 	s->addGroup(_("SAVESTATES"));
 
-	// AUTO SAVE/LOAD
+	// AUTO SAVE/LOAD (shanchu)
 	auto autosave_enabled = std::make_shared<SwitchComponent>(mWindow);
 	autosave_enabled->setState(SystemConf::getInstance()->get("global.autosave") == "1");
 	s->addWithLabel(_("AUTO SAVE/LOAD"), autosave_enabled);
 	s->addSaveFunc([autosave_enabled] { SystemConf::getInstance()->set("global.autosave", autosave_enabled->getState() ? "1" : ""); });
 
-	// INCREMENTAL SAVESTATES
+	// INCREMENTAL SAVESTATES(shanchu)
 	auto incrementalSaveStates = std::make_shared<OptionListComponent<std::string>>(mWindow, _("INCREMENTAL SAVESTATES"));
 	incrementalSaveStates->addRange({ 
 		{ _("YES"), "", "" }, // Don't use 1 -> 1 is YES, auto too
@@ -2807,16 +2816,16 @@ void GuiMenu::openGamesSettings()
 	s->addWithLabel(_("INCREMENTAL SAVESTATES"), incrementalSaveStates);
 	s->addSaveFunc([incrementalSaveStates] { SystemConf::getInstance()->set("global.incrementalsavestates", incrementalSaveStates->getSelected()); });
 	
-	// SHOW SAVE STATES
+	// SHOW SAVE STATES(shanchu)
 	auto showSaveStates = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SHOW SAVE STATE MANAGER"));
 	showSaveStates->addRange({ { _("NO"), "auto" },{ _("ALWAYS") , "1" },{ _("IF NOT EMPTY") , "2" } }, SystemConf::getInstance()->get("global.savestates"));
 	s->addWithDescription(_("SHOW SAVE STATE MANAGER"), _("Display save state manager before launching a game."), showSaveStates);
 	s->addSaveFunc([showSaveStates] { SystemConf::getInstance()->set("global.savestates", showSaveStates->getSelected()); });
 
 
-	s->addGroup(_("SYSTEM SETTINGS"));
+	s->addGroup(_("SYSTEM SETTINGS")); //(shanchu)
 
-	// Custom config for systems
+	// Custom config for systems //shanchu
 	s->addEntry(_("PER SYSTEM ADVANCED CONFIGURATION"), true, [this, s, window]
 	{
 		s->save();
@@ -2843,15 +2852,18 @@ void GuiMenu::openGamesSettings()
 		window->pushGui(configuration);
 	});
 
-	// Retroachievements
+	// Retroachievements //shanchu
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS))
 		s->addEntry(_("RETROACHIEVEMENT SETTINGS"), true, [this] { openRetroachievementsSettings(); });
-
+} //jieshu
 	// Netplay
 	if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
 		s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
 
-	// Missing Bios
+if (UIModeController::getInstance()->isUIModeFull())
+{ //kaishi
+
+	// Missing Bios /shanchu
 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::BIOSINFORMATION))
 	{
 		s->addEntry(_("MISSING BIOS CHECK"), true, [this, s] { openMissingBiosSettings(); });
@@ -2863,6 +2875,7 @@ void GuiMenu::openGamesSettings()
 		s->addSaveFunc([checkBiosesAtLaunch] { Settings::getInstance()->setBool("CheckBiosesAtLaunch", checkBiosesAtLaunch->getState()); });
 #endif
 	}
+} //jieshu
 	mWindow->pushGui(s);
 }
 
@@ -4165,7 +4178,7 @@ void GuiMenu::openQuitMenu_static(Window *window, bool quickAccessMenu, bool ani
 				quitES(QuitMode::QUIT);
 			}, _("NO"), nullptr));
 		}, "iconControllers");
-		
+	}
 		s->addEntry(_("REBOOT FROM NAND"), false, [window] {
 			window->pushGui(new GuiMsgBox(window, _("REALLY REBOOT FROM NAND?"), _("YES"),
 				[] {
@@ -4176,7 +4189,7 @@ void GuiMenu::openQuitMenu_static(Window *window, bool quickAccessMenu, bool ani
 				quitES(QuitMode::QUIT);
 			}, _("NO"), nullptr));
 		}, "iconAdvanced");
-	}
+//	}
 #endif
 
 	if (quickAccessMenu)
