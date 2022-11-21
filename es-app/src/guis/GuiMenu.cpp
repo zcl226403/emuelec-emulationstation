@@ -169,9 +169,10 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
 #else
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 			addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
-
+if (isFullUI)
+{
 		addEntry(_("UI SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
-
+}
 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))		
 			addEntry(controllers_settings_label.c_str(), true, [this] { openControllersSettings(); }, "iconControllers");
 		else
@@ -2713,8 +2714,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 { //kaishi
 	if (!hasGlobalFeature("runahead"))
 		s->addEntry(_("LATENCY REDUCTION"), true, [this] { openLatencyReductionConfiguration(mWindow, "global"); });
-} //jieshu
-	//AI-enabled translations
+
+	//AI-enabled translations(quchu)
 	if (!hasGlobalFeature("ai_service_enabled"))
 	{
 		s->addEntry(_("AI GAME TRANSLATION"), true, [this]
@@ -2782,7 +2783,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 			mWindow->pushGui(ai_service);
 		});
 	}
-	
+} //jieshu	
 	// Load global custom features
 	addFeatures(CustomFeatures::GlobalFeatures, window, s, "global", _("DEFAULT GLOBAL SETTINGS"));
 	
@@ -3871,8 +3872,8 @@ void GuiMenu::openUISettings()
 		}		
 	}
 
-if (UIModeController::getInstance()->isUIModeFull())//kaishi UI
-	{
+//if (UIModeController::getInstance()->isUIModeFull())//kaishi UI
+//	{
 
 	s->addGroup(_("DISPLAY OPTIONS"));
 	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
@@ -3919,7 +3920,7 @@ if (UIModeController::getInstance()->isUIModeFull())//kaishi UI
 			window->pushGui(new GuiMenu(window));
 		}
 	});
-	}//jieshu
+//	}//jieshu
 	mWindow->pushGui(s);
 }
 
