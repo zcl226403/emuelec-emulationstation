@@ -8,6 +8,7 @@
 #include "components/MultiLineMenuEntry.h"
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
+#include "ApiSystem.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -19,14 +20,25 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 
 	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
-	addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
 
-    addEntry(_("CLOUD BACKUP SETTINGS AND GAME SAVES"), true, [this] { 
-    mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING THIS WILL RESTART EMULATIONSTATION!\n\nThis will backup your game saves, savestates and emuelec configs to the cloud service configured on rclone.conf\n\nBACKUP TO CLOUD AND RESTART?"), _("YES"),
-				[] { 
-				runSystemCommand("systemd-run /usr/bin/emuelec-utils ee_cloud_backup backup", "", nullptr);
-				}, _("NO"), nullptr));
+if (UIModeController::getInstance()->isUIModeFull())
+	{	
+	addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
+	}
+
+    addEntry(_("ENABLE NETPLAY SERVER"), true, [this] { 
+    	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+					{
+						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						return;
+					}
+    	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
+					[] { 
+					mWindow->pushGui(new GuiMsgBox(mWindow, _("runSystemCommand("netplay -d netplay0 -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);")));
+					}, _("NO"), nullptr));
      });
+
+    addWithLabel(_("NETPLAY IP"), _("IP ADDRESS"));
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
