@@ -39,7 +39,11 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
-    addWithLabel(_("NETPLAY IP"), std::make_shared<TextComponent>(mWindow, std::ifstream netplay_ip("/usr/config/EE_VERSION"), font, color));
+    std::string netplay_ip;
+    std::ifstream netplay_ifs;
+    netplay_ifs = "/usr/config/EE_VERSION";
+    netplay_ip = "121212";
+    addWithLabel(_("NETPLAY IP"), std::make_shared<TextComponent>(mWindow, netplay_ip, font, color));
     //addWithLabel(_("NETPLAY IP"), std::string netplayip("11.11.11.11"));
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
