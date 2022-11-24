@@ -39,7 +39,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
-    addWithLabel(_("NETPLAY IP"), _("IP ADDRESS", nullptr));
+    addWithLabel(_("NETPLAY IP"), _("IP ADDRESS"), nullptr);
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
