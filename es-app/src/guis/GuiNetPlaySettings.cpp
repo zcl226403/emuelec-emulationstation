@@ -4,6 +4,9 @@
 #include "components/SwitchComponent.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
+#include "GuiLoading.h"
+#include "components/MultiLineMenuEntry.h"
+#include "components/BatteryIndicatorComponent.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
