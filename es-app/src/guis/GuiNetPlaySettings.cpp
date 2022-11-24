@@ -16,6 +16,8 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
 	addWithLabel(_("ENABLE NETPLAY"), enableNetplay);
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
+if (UIModeController::getInstance()->isUIModeFull())
+	{
 	addInputTextRow(_("PORT"), "global.netplay.port", false);
 	addOptionList(_("USE RELAY SERVER"), { { _("NONE"), "" },{ _("NEW YORK") , "nyc" },{ _("MADRID") , "madrid" },{ _("MONTREAL") , "montreal" },{ _("SAO PAULO") , "saopaulo" } }, "global.netplay.relay", false);
 	addSwitch(_("SHOW UNAVAILABLE GAMES"), "NetPlayShowMissingGames", true);
@@ -28,6 +30,7 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 		if (ThreadedHasher::checkCloseIfRunning(mWindow))
 			mWindow->pushGui(new GuiHashStart(mWindow, ThreadedHasher::HASH_NETPLAY_CRC));
 	});
+	}
 
 	Window* wnd = mWindow;
 	addSaveFunc([wnd, enableNetplay]
