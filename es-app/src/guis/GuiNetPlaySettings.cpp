@@ -3,6 +3,7 @@
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
 #include "GuiHashStart.h"
+#include "views/UIModeController.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
