@@ -1,5 +1,6 @@
 #include "GuiNetPlaySettings.h"
 #include "SystemConf.h"
+#include "ApiSystem.h"
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
 #include "GuiHashStart.h"
@@ -8,7 +9,6 @@
 #include "components/MultiLineMenuEntry.h"
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
-#include "ApiSystem.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -28,17 +28,17 @@ if (UIModeController::getInstance()->isUIModeFull())
 
     addEntry(_("ENABLE NETPLAY SERVER"), true, [this] { 
     	if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
-					{
-						mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
-						return;
-					}
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+				return;
+			}
     	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[] { 
 					runSystemCommand("netplay -d netplay0 -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
-    addWithLabel(_("NETPLAY IP"), _("IP ADDRESS"));
+  //  addWithLabel(_("NETPLAY IP"), _("IP ADDRESS"));
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
