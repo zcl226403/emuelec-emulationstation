@@ -10,7 +10,6 @@
 #include "components/MultiLineMenuEntry.h"
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
-#include "ThemeData.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -46,7 +45,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 //    netplay_ifs = "/usr/config/EE_VERSION";
 //    netplay_ip = "121212";
 //    addWithLabel(_("NETPLAY IP"), std::make_shared<string>("2222"));
-    addWithLabel(_("NETPLAY IP"), std::make_shared<TextComponent>(window, ApiSystem::getInstance()->getVersion(), font, color));
+    addWithLabel(_("NETPLAY IP"), std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->getBool("global.netplay.port"), font, color));
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
