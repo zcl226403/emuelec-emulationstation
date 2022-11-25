@@ -4,7 +4,6 @@
 #include "ApiSystem.h"
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
-#include "components/TextComponent.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
 #include "GuiLoading.h"
@@ -42,13 +41,9 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
-//    std::string netplay_ip;
-//    std::ifstream netplay_ifs;
-//    netplay_ifs = "/usr/config/EE_VERSION";
-//    netplay_ip = "121212";
-//    addWithLabel(_("NETPLAY IP"), std::make_shared<string>("2222"));
- //   auto NetPlayIP = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAdress(), font, color);
- //   addWithLabel(_("NETPLAY IP"), NetPlayIP);
+
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAdress());
+    addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
