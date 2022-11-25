@@ -45,7 +45,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAdress(), font, color);
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.netplay.port"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
 
