@@ -40,9 +40,12 @@ if (UIModeController::getInstance()->isUIModeFull())
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
 				}, _("NO"), nullptr));
      });
+    
+	auto theme = ThemeData::getMenuTheme();
+	std::shared_ptr<Font> font = theme->Text.font;
+	unsigned int color = theme->Text.color;
 
-
-	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAdress());
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAdress(), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
 
