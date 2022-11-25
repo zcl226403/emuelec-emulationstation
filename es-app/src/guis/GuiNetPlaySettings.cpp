@@ -46,7 +46,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 //    netplay_ifs = "/usr/config/EE_VERSION";
 //    netplay_ip = "121212";
 //    addWithLabel(_("NETPLAY IP"), std::make_shared<string>("2222"));
-    addWithLabel(_("NETPLAY IP"), std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getVersion(), font, color));
+    addWithLabel(_("NETPLAY IP"),std::make_shared<TextComponent>(mWindow, "1212121212", font, color));
+
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
