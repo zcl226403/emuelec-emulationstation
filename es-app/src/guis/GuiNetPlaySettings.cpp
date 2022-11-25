@@ -10,6 +10,7 @@
 #include "components/MultiLineMenuEntry.h"
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
+#include "ThemeData.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
