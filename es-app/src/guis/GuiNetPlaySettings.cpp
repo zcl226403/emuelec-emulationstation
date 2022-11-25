@@ -4,6 +4,7 @@
 #include "ApiSystem.h"
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
+#include "components/TextComponent.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
 #include "GuiLoading.h"
