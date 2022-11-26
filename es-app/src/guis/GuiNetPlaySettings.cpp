@@ -45,7 +45,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					//}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
-					//runSystemCommand("if [ "$(cat /storage/.config/emuelec/configs/emuelec.conf |grep "global.jxznetplay.ip" | awk -F'=' '{print $1}')"x != "global.jxznetplay.ip"x ]; then sed -i "/global.netplay.port/a global.jxznetplay.ip=$(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')" /storage/.config/emuelec/configs/emuelec.conf; fi", "", nullptr);
+					runSystemCommand("systemd-run /usr/bin/new-jb xg_netplay_ip", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
