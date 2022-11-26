@@ -39,7 +39,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					std::string pdip = "NO IP ADDRESS";
 					if(SystemConf::getInstance()->get("global.jxznetplay.ip") != pdip)
 					{
-						mWindow->pushGui(new GuiMsgBox(window, _("Has launched the online server"), _("OK"), nullptr));
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
 						return;
 					}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
