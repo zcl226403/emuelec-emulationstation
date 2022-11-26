@@ -36,13 +36,13 @@ if (UIModeController::getInstance()->isUIModeFull())
 			}
     	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
-					//std::string pdip1 = SystemConf::getInstance()->get("global.jxznetplay.ip");
-					//std::string pdip2 = "NO IP ADDRESS";
-					//if (pdip1 != pdip2)
-					//{
-					//	mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
-					//	return;
-					//}
+					std::string pdip1 = SystemConf::getInstance()->get("global.jxznetplay.ip");
+					std::string pdip2 = "NO IP ADDRESS";
+					if (pdip1 != pdip2)
+					{
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
+						return;
+					}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
 					runSystemCommand("systemd-run /usr/bin/new-jb xg_netplay_ip", "", nullptr);
