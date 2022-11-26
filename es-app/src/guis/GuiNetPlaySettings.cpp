@@ -36,16 +36,23 @@ if (UIModeController::getInstance()->isUIModeFull())
 			}
     	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
-					runSystemCommand("netplay -d netplay0 -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
+					std::string pdip = "NO IP ADDRESS";
+					if(SystemConf::getInstance()->get("global.jxznetplay.ip") != pdip)
+					{
+						mWindow->pushGui(new GuiMsgBox(window, _("Has launched the online server"), _("OK"), nullptr));
+						return;
+					}
+					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
+					runSystemCommand("if [ "$(cat /storage/.config/emuelec/configs/emuelec.conf |grep "global.jxznetplay.ip" | awk -F'=' '{print $1}')"x != "global.jxznetplay.ip"x ]; then sed -i "/global.netplay.port/a global.jxznetplay.ip=$(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')" /storage/.config/emuelec/configs/emuelec.conf; fi", "", nullptr);
 				}, _("NO"), nullptr));
      });
-    
+
 	auto theme = ThemeData::getMenuTheme();
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.netplay.port"), font, color);
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
 
