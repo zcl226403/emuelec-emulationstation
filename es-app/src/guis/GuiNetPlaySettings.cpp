@@ -45,7 +45,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
-					runSystemCommand("systemd-run /usr/bin/new-jb xg_netplay_ip", "", nullptr);
+					runSystemCommand("systemd-run /usr/bin/new-jb xg_netplay_ip net_ip", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
@@ -56,6 +56,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
+    auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
+	addWithLabel(_("SERVER STATUS"), status);
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
