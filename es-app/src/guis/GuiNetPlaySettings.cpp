@@ -45,7 +45,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
-					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip net_ip", "", nullptr);
+					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
 				}, _("NO"), nullptr));
      });
 
