@@ -687,7 +687,7 @@ void GuiNetPlay::launchGame(LobbyAppEntry entry)
 	}
 	else
 	{
-		options.ip = entry.ip;
+		options.ip = entry.username;
 		options.port = entry.port;
 	}
 	
