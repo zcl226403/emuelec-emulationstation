@@ -18,6 +18,10 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
+	std::string PDNetPlayIP;
+	PDNetPlayIP = SystemConf::getInstance()->get("global.jxznetplay.ip");
+	SystemConf::getInstance()->set("global.jxznetplay.ip", PDNetPlayIP);
+
 	addGroup(_("SETTINGS"));
 
 	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
@@ -57,7 +61,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
     auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
-	addWithLabel(_("SERVER STATUS"), status);
+	addWithLabel(_("INTERNET STATUS"), status);
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 if (UIModeController::getInstance()->isUIModeFull())
