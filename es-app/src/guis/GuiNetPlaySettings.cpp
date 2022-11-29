@@ -45,7 +45,8 @@ if (UIModeController::getInstance()->isUIModeFull())
     	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
 					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
-					if (jxznetplay.empty())
+					std::string jxznetplay2 = SystemConf::getInstance()->get("global.jxznetplay.ip");
+					if (jxznetplay2.empty())
 					{
 						runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
