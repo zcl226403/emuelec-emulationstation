@@ -574,7 +574,7 @@ std::string FileData::getlaunchCommand(LaunchGameOptions& options, bool includeC
 		else
 #endif
 #ifdef _ENABLEEMUELEC
-		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.jxznetplay.ip"));
+		command = Utils::String::replace(command, "%NETPLAY%", "--host --port " + SystemConf::getInstance()->get("global.netplay.port") + " --nick " + SystemConf::getInstance()->get("global.netplay.nickname"));
 #else
 			command = Utils::String::replace(command, "%NETPLAY%", "-netplaymode host");
 #endif
