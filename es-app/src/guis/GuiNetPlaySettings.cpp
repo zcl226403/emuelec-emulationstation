@@ -19,7 +19,7 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	std::string PDNetPlayIP = std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"));
+	std::string PDNetPlayIP = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)"));
 	std::string XSIP
 	if (PDNetPlayIP == "ifconfig: netplay: error fetching interface information: Device not found")
 	{
@@ -27,7 +27,7 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	}
 	else
 	{
-		XSIP = std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"));
+		XSIP = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)"));
 	}
 
 	addGroup(_("SETTINGS"));
@@ -46,7 +46,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 				return;
 			}
-		if (std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')")) == "ifconfig: netplay: error fetching interface information: Device not found")
+		if (std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)")) == "ifconfig: netplay: error fetching interface information: Device not found")
 			{
 
 			mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
@@ -56,7 +56,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
 
 			}
-			else
+		else
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
 				return;
