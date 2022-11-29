@@ -185,7 +185,7 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 					}
 					if (jxznetplay4.empty())
 					{
-						mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't open online server, warning, do not use wifi online, please use the Internet for online, otherwise you won't online."), _("OK"), nullptr));
+						window->pushGui(new GuiMsgBox(window, _("You didn't open online server, warning, do not use wifi online, please use the Internet for online, otherwise you won't online."), _("OK"), nullptr));
 						return;
 					}
 
