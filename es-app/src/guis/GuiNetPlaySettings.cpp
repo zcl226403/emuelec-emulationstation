@@ -18,9 +18,16 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	std::string PDNetPlayIP;
-	PDNetPlayIP = SystemConf::getInstance()->get("global.jxznetplay.ip");
-	SystemConf::getInstance()->set("global.jxznetplay.ip", PDNetPlayIP);
+	std::string PDNetPlayIP = std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"));
+	std::string XSIP
+	if (PDNetPlayIP == "ifconfig: netplay: error fetching interface information: Device not found")
+	{
+		XSIP = "Not connect to the server";
+	}
+	else
+	{
+		XSIP = std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')"));
+	}
 
 	addGroup(_("SETTINGS"));
 
@@ -38,26 +45,29 @@ if (UIModeController::getInstance()->isUIModeFull())
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 				return;
 			}
-    	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
+		if (std::string(getShOutput(R"(ifconfig netplay | grep 'inet addr' | cut -d: -f2 | awk '{print $1}')")) == "ifconfig: netplay: error fetching interface information: Device not found")
+			{
+
+			mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
-					std::string pdip1 = SystemConf::getInstance()->get("global.jxznetplay.ip");
-					std::string pdip2 = "NO IP ADDRESS";
-					if (pdip1 != pdip2)
-					{
-						mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
-						return;
-					}
 					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
-					mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
-					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+					mWindow->pushGui(new GuiMsgBox(mWindow, _("Start the server request has been submitted.")));
 				}, _("NO"), nullptr));
+
+			}
+			else
+			{
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
+				return;
+			}
+    	
      });
 
 	auto theme = ThemeData::getMenuTheme();
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, XSIP, font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
     
     auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
