@@ -415,7 +415,7 @@ bool SystemView::input(InputConfig* config, Input input)
 		bool netPlay = SystemData::isNetplayActivated() && SystemConf::getInstance()->getBool("global.netplay");
 		if (netPlay && config->isMappedTo("x", input))
 		{
-			runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+			//runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
 			std::string jxznetplay3 = SystemConf::getInstance()->get("global.jxznetplay.ip");
 			if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 			{
