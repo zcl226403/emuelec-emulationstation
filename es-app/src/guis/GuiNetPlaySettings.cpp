@@ -18,9 +18,9 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
-
-	std::string jxznetplay = SystemConf::getInstance()->get("global.jxznetplay.ip");
+	runSystemCommand("systemd-run /usr/bin/newjb s_netplay_ip", "", nullptr);
+	std::string jxznetplay = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
+	//std::string jxznetplay = SystemConf::getInstance()->get("global.jxznetplay.ip");
 	if (jxznetplay.empty())
 		SystemConf::getInstance()->set("global.jxznetplay.ip", "server is not started");
 	else
@@ -44,8 +44,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 			}
     	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
-					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
-					std::string jxznetplay2 = SystemConf::getInstance()->get("global.jxznetplay.ip");
+					//runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+					std::string jxznetplay2 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 					if (jxznetplay2.empty())
 					{
 						runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
