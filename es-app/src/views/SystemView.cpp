@@ -416,8 +416,8 @@ bool SystemView::input(InputConfig* config, Input input)
 		bool netPlay = SystemData::isNetplayActivated() && SystemConf::getInstance()->getBool("global.netplay");
 		if (netPlay && config->isMappedTo("x", input))
 		{
-			runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
-			std::string jxznetplay3 = SystemConf::getInstance()->get("global.jxznetplay.ip");
+			//runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+			std::string jxznetplay3 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 			if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 			{
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("You do not have access to the Internet, please check whether the cable is good, warning, do not use wifi online, otherwise you won't online."), _("OK"), nullptr));
