@@ -26,6 +26,7 @@
 #include "SaveStateRepository.h"
 #include "guis/GuiSaveState.h"
 #include "SystemConf.h"
+#include "platform.h"
 
 GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(window),
 	mMenu(window, game->getName()), mReloadAll(false)
@@ -176,13 +177,13 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 				msgBox->addEntry(_U("\uF144 ") + _("HOST A NETPLAY GAME"), false, [window, msgBox, game]
 				{
 					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
-					std::string jxznetplay3 = SystemConf::getInstance()->get("global.jxznetplay.ip");
+					std::string jxznetplay4 = SystemConf::getInstance()->get("global.jxznetplay.ip");
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
 						window->pushGui(new GuiMsgBox(window, _("You do not have access to the Internet, please check whether the cable is good, warning, do not use wifi online, otherwise you won't online."), _("OK"), nullptr));
 						return;
 					}
-					if (jxznetplay3.empty())
+					if (jxznetplay4.empty())
 					{
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("You didn't open online server, warning, do not use wifi online, please use the Internet for online, otherwise you won't online."), _("OK"), nullptr));
 						return;
