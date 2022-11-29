@@ -11,7 +11,6 @@
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
 #include "ThemeData.h"
-#include "platform.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -19,16 +18,13 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	std::string PDNetPlayIP = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)"));
-	std::string XSIP
-	if (PDNetPlayIP == "ifconfig: netplay: error fetching interface information: Device not found")
-	{
-		XSIP = "Not connect to the server";
-	}
+	runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+
+	std::string jxznetplay = SystemConf::getInstance()->get("global.jxznetplay.ip");
+	if (jxznetplay.empty())
+		SystemConf::getInstance()->set("global.jxznetplay.ip", "server is not started");
 	else
-	{
-		XSIP = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)"));
-	}
+		SystemConf::getInstance()->set("global.jxznetplay.ip", jxznetplay);
 
 	addGroup(_("SETTINGS"));
 
@@ -46,30 +42,30 @@ if (UIModeController::getInstance()->isUIModeFull())
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
 				return;
 			}
-		if (std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip)")) == "ifconfig: netplay: error fetching interface information: Device not found")
-			{
-
-			mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
+    	mWindow->pushGui(new GuiMsgBox(mWindow, _("Warning: \n must connect cables, access server to be successful, \n make sure to open the server?"), _("YES"),
 				[this] { 
-					runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
-					mWindow->pushGui(new GuiMsgBox(mWindow, _("Start the server request has been submitted.")));
-				}, _("NO"), nullptr));
+					runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+					if (jxznetplay.empty())
+					{
+						runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
+					}
+					else
+					{
+						mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
+						return;
+					}
 
-			}
-		else
-			{
-				mWindow->pushGui(new GuiMsgBox(mWindow, _("Has launched the online server"), _("OK"), nullptr));
-				return;
-			}
-    	
+				}, _("NO"), nullptr));
      });
 
 	auto theme = ThemeData::getMenuTheme();
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, XSIP, font, color);
-    addWithLabel(_("NETPLAY IP"), NetPlayIP);
+	//auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
+    //addWithLabel(_("NETPLAY IP"), NetPlayIP);
+    addInputTextRow(_("NETPLAY IP"), "global.jxznetplay.ip", false);
     
     auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
 	addWithLabel(_("INTERNET STATUS"), status);
