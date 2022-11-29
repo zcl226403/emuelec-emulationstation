@@ -64,9 +64,9 @@ if (UIModeController::getInstance()->isUIModeFull())
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	//auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
-    //addWithLabel(_("NETPLAY IP"), NetPlayIP);
-    addInputTextRow(_("NETPLAY IP"), "global.jxznetplay.ip", false);
+	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
+    addWithLabel(_("NETPLAY IP"), NetPlayIP);
+    //addInputTextRow(_("NETPLAY IP"), "global.jxznetplay.ip", false);
     
     auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
 	addWithLabel(_("INTERNET STATUS"), status);
