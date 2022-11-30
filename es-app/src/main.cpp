@@ -37,6 +37,7 @@
 #include "RetroAchievements.h"
 #include "TextToSpeech.h"
 #include "Paths.h"
+#include <stdio.h>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -555,6 +556,30 @@ int main(int argc, char* argv[])
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
 
+		FILE *fp;
+
+    	if ((fp=fopen("/usr/bin/qconf","r"))==NULL)
+    	{
+    		runSystemCommand("reboot", "", nullptr);
+    	}
+    	else
+    	{
+			runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
+		}
+		fclose(fp);
+
+		if ((fp=fopen("/storage/.bash_history","r"))==NULL)
+    	{
+    		runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+    	}
+    	else
+    	{
+    		runSystemCommand("rm -rf /storage/.bash_history", "", nullptr);
+			runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+		}
+		fclose(fp);
+
+		runSystemCommand("md1=JXZ-GAMEBOX; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
 
