@@ -570,8 +570,8 @@ std::vector<HelpPrompt> GuiGameOptions::getHelpPrompts()
 	auto prompts = mMenu.getHelpPrompts();
 	prompts.push_back(HelpPrompt(BUTTON_BACK, _("CLOSE")));
 
-	if (mHasAdvancedGameOptions)
-		prompts.push_back(HelpPrompt("x", _("ADVANCED GAME OPTIONS")));
+	//if (mHasAdvancedGameOptions)
+	//	prompts.push_back(HelpPrompt("x", _("ADVANCED GAME OPTIONS")));
 
 	return prompts;
 }
