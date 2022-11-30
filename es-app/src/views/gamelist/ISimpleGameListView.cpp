@@ -185,11 +185,11 @@ void ISimpleGameListView::update(const int deltaTime)
 		return;
 	}
 
-	if (mYButton.isLongPressed(deltaTime))
-	{
-		moveToRandomGame();
-		return;
-	}
+//	if (mYButton.isLongPressed(deltaTime))
+//	{
+//		moveToRandomGame();
+//		return;
+//	}
 	
 	if (mXButton.isLongPressed(deltaTime))
 	{
@@ -215,7 +215,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 
 	if (mYButton.isShortPressed(config, input))
 	{
-		showQuickSearch();
+		moveToRandomGame();
 		return true;
 	}
 
@@ -431,10 +431,10 @@ void ISimpleGameListView::showQuickSearch()
 			ViewController::get()->reloadGameListView(mRoot->getSystem());
 	};
 
-	if (Settings::getInstance()->getBool("UseOSK"))
-		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("FILTER GAMES BY TEXT"), searchText, updateVal, false));
-	else
-		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("FILTER GAMES BY TEXT"), searchText, updateVal, false));
+//	if (Settings::getInstance()->getBool("UseOSK"))
+//		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("FILTER GAMES BY TEXT"), searchText, updateVal, false));
+//	else
+//		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("FILTER GAMES BY TEXT"), searchText, updateVal, false));
 }
 
 void ISimpleGameListView::moveToRandomGame()
@@ -570,7 +570,7 @@ std::vector<HelpPrompt> ISimpleGameListView::getHelpPrompts()
 	else if (!UIModeController::getInstance()->isUIModeKid())
 		prompts.push_back(HelpPrompt("x", _("FAVORITE")));
 
-	prompts.push_back(HelpPrompt("y", _("SEARCH") + std::string("/") + _("RANDOM (HOLD)")));
+	prompts.push_back(HelpPrompt("y", /*_("SEARCH") + std::string("/") + */_("RANDOM")));
 
 	return prompts;
 }
