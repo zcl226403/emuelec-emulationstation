@@ -766,6 +766,8 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
          });
 #endif
 
+if (UIModeController::getInstance()->isUIModeFull())
+{
     dangerZone->addEntry(_("CLOUD BACKUP SETTINGS AND GAME SAVES"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING THIS WILL RESTART EMULATIONSTATION!\n\nThis will backup your game saves, savestates and emuelec configs to the cloud service configured on rclone.conf\n\nBACKUP TO CLOUD AND RESTART?"), _("YES"),
 				[] { 
@@ -787,6 +789,8 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				}, _("NO"), nullptr));
      });
 
+}
+
     dangerZone->addEntry(_("RESET EMUELEC SCRIPTS AND BINARIES TO DEFAULT"), true, [mWindow] { 
     mWindow->pushGui(new GuiMsgBox(mWindow, _("WARNING: SYSTEM WILL RESET SCRIPTS AND BINARIES !\nUPDATE, DOWNLOADS, THEMES, BLUETOOTH PAIRINGS AND ROMS FOLDER WILL NOT BE AFFECTED.\n\nRESET SCRIPTS AND BINARIES TO DEFAULT AND RESTART?"), _("YES"),
 				[] { 
@@ -807,6 +811,9 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/emuelec-utils clearconfig ALL", "", nullptr);
 				}, _("NO"), nullptr));
      });
+
+if (UIModeController::getInstance()->isUIModeFull())
+{
     dangerZone->addEntry(_("FORCE UPDATE"), true, [mWindow] { 
                  
     				if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
@@ -820,7 +827,7 @@ void GuiMenu::openDangerZone(Window* mWindow, std::string configName)
 				runSystemCommand("systemd-run /usr/bin/updatecheck.sh forceupdate", "", nullptr);
 				}, _("NO"), nullptr));
      });
-
+}
 mWindow->pushGui(dangerZone);
 }
 
@@ -860,7 +867,7 @@ void GuiMenu::addVersionInfo()
 		else
 		{
 #ifdef _ENABLEEMUELEC	
-		mVersion.setText("YI XIONG YOU YI" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
+		mVersion.setText("YI XIONG YOU YI-" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)"));
 #else
 			std::string aboutInfo = ApiSystem::getInstance()->getApplicationName() + " V" + ApiSystem::getInstance()->getVersion();
 			mVersion.setText(aboutInfo + buildDate);
