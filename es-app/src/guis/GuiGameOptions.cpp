@@ -395,7 +395,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 		}
 	}
 
-		/*if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
+		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
 		{
 			auto srcSystem = game->getSourceFileData()->getSystem();
 			auto sysOptions = !mSystem->isGameSystem() ? srcSystem : mSystem;
@@ -412,7 +412,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					});
 				}
 			}
-		}*/
+		}//mingtian chongxin nong
 
 	if (UIModeController::getInstance()->isUIModeFull())
 	{
