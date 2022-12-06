@@ -20,7 +20,7 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 
 	std::string OTHERIP = SystemConf::getInstance()->get("global.netplay.opspip");
 	if (OTHERIP.empty())
-	SystemConf::getInstance()->set("global.netplay.port", "116.116.0.10");
+	SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.10");
 
 	runSystemCommand("systemd-run /usr/bin/newjb s_netplay_ip", "", nullptr);
 	std::string jxznetplay = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
