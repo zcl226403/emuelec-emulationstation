@@ -548,12 +548,12 @@ bool GuiGameOptions::input(InputConfig* config, Input input)
 		return true;
 	}
 
-	if (mHasAdvancedGameOptions && config->isMappedTo("x", input) && input.value)
+	/*if (mHasAdvancedGameOptions && config->isMappedTo("x", input) && input.value)
 	{
 		GuiMenu::popGameConfigurationGui(mWindow, mGame);
 		close();
 		return true;
-	}
+	}*/
 
 	return mMenu.input(config, input);
 }
