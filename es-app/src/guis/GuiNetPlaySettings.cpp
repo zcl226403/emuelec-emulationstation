@@ -18,11 +18,15 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
+	std::string OTHERIP = SystemConf::getInstance()->get("global.netplay.opspip");
+	if (OTHERIP.empty())
+	SystemConf::getInstance()->set("global.netplay.port", "116.116.0.10");
+
 	runSystemCommand("systemd-run /usr/bin/newjb s_netplay_ip", "", nullptr);
 	std::string jxznetplay = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 	//std::string jxznetplay = SystemConf::getInstance()->get("global.jxznetplay.ip");
 	if (jxznetplay.empty())
-		SystemConf::getInstance()->set("global.jxznetplay.ip", "server is not started");
+		SystemConf::getInstance()->set("global.jxznetplay.ip", "NONE");
 	else
 		SystemConf::getInstance()->set("global.jxznetplay.ip", jxznetplay);
 
@@ -72,6 +76,32 @@ if (UIModeController::getInstance()->isUIModeFull())
 	addWithLabel(_("INTERNET STATUS"), status);
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
+
+	addEntry(_("Map Server IP to PSP"), true, [this]
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow, _("You are about to map the IP address of the server to the local PSP as the host of the PSP. Are you sure to map?"), _("YES"),
+			[this] {
+				std::string jxznetplay3 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
+				if (jxznetplay3.empty())
+				{
+					mWindow->pushGui(new GuiMsgBox(mWindow, _("You do not have started online server"), _("OK"), nullptr));
+					return;
+				}
+				runSystemCommand("systemd-run /usr/bin/newjb server_netplay_psp_ip", "", nullptr);
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("Server IP mapping completed"), _("OK"), nullptr));
+			}, _("NO"), nullptr));
+	});
+	addInputTextRow(_("other PSP IP"), "global.netplay.opspip", false);
+
+	addEntry(_("Map Other IP to PSP"), true, [this]
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow, _("You will map the IP of the other party to the local PSP as the secondary host of the other party. Are you sure you want to map?"), _("YES"),
+			[this] {
+				runSystemCommand("systemd-run /usr/bin/newjb other_netplay_psp_ip", "", nullptr);
+				mWindow->pushGui(new GuiMsgBox(mWindow, _("The opposite IP mapping is completed"), _("OK"), nullptr));
+			}, _("NO"), nullptr));
+	});
+
 if (UIModeController::getInstance()->isUIModeFull())
 	{
 	addInputTextRow(_("PORT"), "global.netplay.port", false);
