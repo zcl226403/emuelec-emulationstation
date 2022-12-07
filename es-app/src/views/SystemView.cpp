@@ -537,7 +537,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			return true;
 		}
 
-		if (config->isMappedTo(BUTTON_BACK, input) && SystemData::IsManufacturerSupported)
+		/*if (config->isMappedTo(BUTTON_BACK, input) && SystemData::IsManufacturerSupported)
 		{
 			auto sortMode = Settings::getInstance()->getString("SortSystems");
 			if (sortMode == "alpha")
@@ -560,7 +560,7 @@ bool SystemView::input(InputConfig* config, Input input)
 				showNavigationBar(_("GO TO DECADE"), [](SystemData* meta) { if (meta->getSystemMetadata().releaseYear == 0) return _("Unknown"); return std::to_string((meta->getSystemMetadata().releaseYear / 10) * 10) + "'s"; });
 				return true;
 			}
-		}
+		}*/
 		
 		if (config->isMappedTo("x", input))
 		{
