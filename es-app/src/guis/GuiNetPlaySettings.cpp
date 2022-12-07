@@ -97,6 +97,12 @@ if (UIModeController::getInstance()->isUIModeFull())
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow, _("You will map the IP of the other party to the local PSP as the secondary host of the other party. Are you sure you want to map?"), _("YES"),
 			[this] {
+				std::string jxznetplay3 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
+				if (jxznetplay3.empty())
+				{
+					mWindow->pushGui(new GuiMsgBox(mWindow, _("You do not have started online server"), _("OK"), nullptr));
+					return;
+				}
 				runSystemCommand("systemd-run /usr/bin/newjb other_netplay_psp_ip", "", nullptr);
 				mWindow->pushGui(new GuiMsgBox(mWindow, _("The opposite IP mapping is completed"), _("OK"), nullptr));
 			}, _("NO"), nullptr));
