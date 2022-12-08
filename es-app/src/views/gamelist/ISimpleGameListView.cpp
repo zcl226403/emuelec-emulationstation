@@ -169,7 +169,7 @@ void ISimpleGameListView::update(const int deltaTime)
 {
 	GuiComponent::update(deltaTime);
 
-	/*if (mOKButton.isLongPressed(deltaTime))
+	if (mOKButton.isLongPressed(deltaTime))
 	{
 		if (Settings::getInstance()->getBool("GameOptionsAtNorth"))
 			showSelectedGameSaveSnapshots();
@@ -177,7 +177,7 @@ void ISimpleGameListView::update(const int deltaTime)
 			showSelectedGameOptions();
 
 		return;
-	}*/
+	}
 
 	if (mSelectButton.isLongPressed(deltaTime))
 	{
@@ -209,7 +209,10 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 {
 	if (mOKButton.isShortPressed(config, input))
 	{
-		launchSelectedGame();
+		if (Settings::getInstance()->getBool("GameOptionsAtNorth"))
+			launchSelectedGame();
+		else
+			launchSelectedGame();
 		return true;
 	}
 
