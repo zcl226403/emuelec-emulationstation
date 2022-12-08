@@ -209,10 +209,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 {
 	if (mOKButton.isShortPressed(config, input))
 	{
-		if (Settings::getInstance()->getBool("GameOptionsAtNorth"))
-			launchSelectedGame();
-		else
-			launchSelectedGame();
+		launchSelectedGame();
 		return true;
 	}
 
