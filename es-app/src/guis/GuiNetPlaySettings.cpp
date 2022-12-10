@@ -52,7 +52,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					std::string jxznetplay2 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 					if (jxznetplay2.empty())
 					{
-						runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 43.138.61.62:11001", "", nullptr);
+						runSystemCommand("netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 139.9.249.246:11001", "", nullptr);
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
 					}
 					else
