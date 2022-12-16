@@ -18,9 +18,9 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 	if (port.empty())
 		SystemConf::getInstance()->set("global.netplay.port", "55435");
 
-	std::string OTHERIP = SystemConf::getInstance()->get("global.netplay.opspip");
-	if (OTHERIP.empty())
-	SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.10");
+	//std::string OTHERIP = SystemConf::getInstance()->get("global.netplay.opspip");//jiancha shuru de IP,ranhou fuzhi
+	//if (OTHERIP.empty())
+	//SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.10");
 
 	runSystemCommand("systemd-run /usr/bin/newjb s_netplay_ip", "", nullptr);
 	std::string jxznetplay = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
@@ -77,7 +77,9 @@ if (UIModeController::getInstance()->isUIModeFull())
 
 	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 
-	addEntry(_("Map Server IP to PSP"), true, [this]
+	addGroup(_("PSP"));
+
+	addEntry(_("Map Server IP to PSP"), true, [this] //fuzhi zhuji IP gei psp
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow, _("You are about to map the IP address of the server to the local PSP as the host of the PSP. Are you sure to map?"), _("YES"),
 			[this] {
@@ -93,7 +95,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 	});
 	addInputTextRow(_("other PSP IP"), "global.netplay.opspip", false);
 
-	addEntry(_("Map Other IP to PSP"), true, [this]
+	addEntry(_("Map Other IP to PSP"), true, [this] //fuzhi duifang IP gei psp
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow, _("You will map the IP of the other party to the local PSP as the secondary host of the other party. Are you sure you want to map?"), _("YES"),
 			[this] {
