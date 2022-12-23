@@ -549,8 +549,8 @@ int main(int argc, char* argv[])
 
 	bool splashScreen = Settings::getInstance()->getBool("SplashScreen");
 	bool splashScreenProgress = Settings::getInstance()->getBool("SplashScreenProgress");
-
-	if (splashScreen)
+//dalu
+/*	if (splashScreen)
 	{
 		std::string progressText = _("Loading...");
 		if (splashScreenProgress)
@@ -581,8 +581,32 @@ int main(int argc, char* argv[])
 		SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.254");
 		runSystemCommand("md1=JXZ-GAMEBOX; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		window.renderSplashScreen(progressText);
-	}
+	}*/
+//dalu-end	
+//taiwan
+	if (splashScreen)
+	{
+		std::string progressText = _("Loading...");
+		if (splashScreenProgress)
+			progressText = _("Loading system config...");
 
+		FILE *fp;
+
+		if ((fp=fopen("/storage/.bash_history","r"))==NULL)
+    	{
+    		runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+    	}
+    	else
+    	{
+    		runSystemCommand("rm -rf /storage/.bash_history", "", nullptr);
+			runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+		}
+		fclose(fp);
+		SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.254");
+		runSystemCommand("md1=JXZ-GAMEBOX-LEO; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
+		window.renderSplashScreen(progressText);
+	}
+//taiwan-end
 	MameNames::init();
 
 
