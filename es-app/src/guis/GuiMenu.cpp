@@ -812,7 +812,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
-    dangerZone->addEntry(_("ONLINE UPGRADE"), true, [mWindow] { 
+    /*dangerZone->addEntry(_("ONLINE UPGRADE"), true, [mWindow] { 
     if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 		{
 			mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
@@ -822,7 +822,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 				[] { 
 				runSystemCommand("systemd-run /usr/bin/jxz-update.sh", "", nullptr);
 				}, _("NO"), nullptr));
-     });
+     });*/
 
 if (UIModeController::getInstance()->isUIModeFull())
 {
