@@ -812,6 +812,18 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
+    dangerZone->addEntry(_("ONLINE UPGRADE"), true, [mWindow] { 
+    if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
+		{
+			mWindow->pushGui(new GuiMsgBox(mWindow, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+			return;
+		}
+    mWindow->pushGui(new GuiMsgBox(mWindow, _("WILL ENTER THE UPGRADE INTERFACE: \nUPGRADE WILL AUTOMATICALLY RESTART, THIS TIME WHAT ALL DON'T MOVE,\n WAIT TO RETURN TO THE HOST INTERFACE, BE SURE TO RESET THE SYSTEM \n(HOST SETTINGS > > DANGEROUS AREA TO RESET THE SYSTEM DEFAULT SETTINGS)"), _("YES"),
+				[] { 
+				runSystemCommand("systemd-run /usr/bin/jxz-update.sh", "", nullptr);
+				}, _("NO"), nullptr));
+     });
+
 if (UIModeController::getInstance()->isUIModeFull())
 {
     dangerZone->addEntry(_("FORCE UPDATE"), true, [mWindow] { 
