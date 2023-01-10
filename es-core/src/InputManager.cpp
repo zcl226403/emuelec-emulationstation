@@ -42,6 +42,7 @@ Delegate<IJoystickChangedEvent> InputManager::joystickChanged;
 
 InputManager::InputManager() : mKeyboardInputConfig(NULL), mMouseButtonsInputConfig(NULL), mCECInputConfig(NULL)
 {
+
 }
 
 InputManager::~InputManager()
@@ -51,7 +52,7 @@ InputManager::~InputManager()
 
 InputManager* InputManager::getInstance()
 {
-	if(!mInstance)
+	if (!mInstance)
 		mInstance = new InputManager();
 
 	return mInstance;
@@ -67,16 +68,22 @@ void InputManager::init()
 	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, -1, "Keyboard", KEYBOARD_GUID_STRING, 0, 0, 0); 
 	loadInputConfig(mKeyboardInputConfig);
 
+#ifdef HAVE_LIBCEC
 	SDL_USER_CECBUTTONDOWN = SDL_RegisterEvents(2);
 	SDL_USER_CECBUTTONUP   = SDL_USER_CECBUTTONDOWN + 1;
 	CECInput::init();
 	mCECInputConfig = new InputConfig(DEVICE_CEC, -1, "CEC", CEC_GUID_STRING, 0, 0, 0); 
 	loadInputConfig(mCECInputConfig);
+#else
+	mCECInputConfig = nullptr;
+#endif
 
 	// Mouse input, hardcoded not configurable with es_input.cfg
 	mMouseButtonsInputConfig = new InputConfig(DEVICE_MOUSE, -1, "Mouse", CEC_GUID_STRING, 0, 0, 0);
 	mMouseButtonsInputConfig->mapInput(BUTTON_OK, Input(DEVICE_MOUSE, TYPE_BUTTON, 1, 1, true));
 	mMouseButtonsInputConfig->mapInput(BUTTON_BACK, Input(DEVICE_MOUSE, TYPE_BUTTON, 3, 1, true));
+
+
 }
 
 void InputManager::deinit()
@@ -104,10 +111,14 @@ void InputManager::deinit()
 		mMouseButtonsInputConfig = NULL;
 	}
 
+#ifdef HAVE_LIBCEC
 	CECInput::deinit();
+#endif
 
 	SDL_JoystickEventState(SDL_DISABLE);
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+
+
 }
 
 int InputManager::getNumJoysticks() 
@@ -154,6 +165,106 @@ void InputManager::clearJoysticks()
 	mJoysticksLock.unlock();
 }
 
+#if defined(WIN32)
+#include <cfgmgr32.h>
+
+class Win32RawInputApi
+{
+public:
+	Win32RawInputApi()
+	{		
+		m_hSDL2 = ::LoadLibrary("SDL2.dll");
+		if (m_hSDL2 != NULL)
+		{
+			m_JoystickPathForIndex = (SDL_JoystickPathForIndexPtr) ::GetProcAddress(m_hSDL2, "SDL_JoystickPathForIndex");
+		}
+
+		m_hSetupapi = ::LoadLibrary("setupapi.dll");
+		if (m_hSetupapi != NULL)
+		{
+			m_CM_Locate_DevNodeA = (CM_Locate_DevNodeAPtr) ::GetProcAddress(m_hSetupapi, "CM_Locate_DevNodeA");
+			m_CM_Get_Parent = (CM_Get_ParentPtr) ::GetProcAddress(m_hSetupapi, "CM_Get_Parent");
+			m_CM_Get_Device_IDA = (CM_Get_Device_IDAPtr) ::GetProcAddress(m_hSetupapi, "CM_Get_Device_IDA");
+		}
+	}
+
+	~Win32RawInputApi()
+	{
+		if (m_hSDL2 != NULL)
+			::FreeLibrary(m_hSDL2);
+
+		m_hSDL2 = NULL;
+
+		if (m_hSetupapi != NULL)
+			::FreeLibrary(m_hSetupapi);
+
+		m_hSetupapi = NULL;
+	}
+	
+	std::string SDL_JoystickPathForIndex(int device_index)
+	{
+		if (m_JoystickPathForIndex != NULL)
+			return m_JoystickPathForIndex(device_index);
+
+		return "";
+	}
+
+	std::string getInputDeviceParent(const std::string& devicePath)
+	{
+		if (m_CM_Locate_DevNodeA == NULL || m_CM_Get_Parent == NULL || m_CM_Get_Device_IDA == NULL)
+			return devicePath;
+
+		std::string path = devicePath;
+
+		auto vidindex = path.find("VID_");
+		if (vidindex == std::string::npos)
+			vidindex = path.find("vid_");
+
+		if (vidindex != std::string::npos)
+		{
+			auto cut = path.find("#{", vidindex);
+			if (cut != std::string::npos)
+				path = path.substr(0, cut);
+		}
+
+		path = Utils::String::replace(path, "\\\\?\\", "");
+		path = Utils::String::replace(path, "#", "\\");
+
+		DEVINST nDevInst;
+		int apiResult = m_CM_Locate_DevNodeA(&nDevInst, (DEVINSTID_A) path.c_str(), CM_LOCATE_DEVNODE_NORMAL);
+		if (apiResult == CR_SUCCESS)
+		{
+			if (m_CM_Get_Parent(&nDevInst, nDevInst, 0) == CR_SUCCESS)
+			{
+				char buf[255];
+				if (m_CM_Get_Device_IDA(nDevInst, buf, 255, 0) == CR_SUCCESS)
+					return std::string(buf);
+			}
+		}
+
+		return devicePath;
+	}
+
+private:	
+	HMODULE m_hSDL2;
+	HMODULE m_hSetupapi;
+
+	typedef const char *(SDLCALL *SDL_JoystickPathForIndexPtr)(int);
+	SDL_JoystickPathForIndexPtr m_JoystickPathForIndex;
+	
+	typedef CONFIGRET(WINAPI* CM_Locate_DevNodeAPtr)(PDEVINST pdnDevInst, DEVINSTID_A pDeviceID, ULONG ulFlags);
+	CM_Locate_DevNodeAPtr m_CM_Locate_DevNodeA;
+
+	typedef CONFIGRET(WINAPI* CM_Get_ParentPtr)(PDEVINST pdnDevInst, DEVINST dnDevInst, ULONG ulFlags);
+	CM_Get_ParentPtr m_CM_Get_Parent;
+
+	typedef CONFIGRET(WINAPI* CM_Get_Device_IDAPtr)(DEVINST dnDevInst, PSTR Buffer, ULONG BufferLen, ULONG ulFlags);
+	CM_Get_Device_IDAPtr m_CM_Get_Device_IDA;
+};
+
+Win32RawInputApi Win32RawInput;
+#endif
+
 void InputManager::rebuildAllJoysticks(bool deinit)
 {
 	if (deinit)
@@ -170,6 +281,7 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 	mJoysticksLock.lock();
 
 	int numJoysticks = SDL_NumJoysticks();
+
 	for (int idx = 0; idx < numJoysticks; idx++)
 	{
 		// open joystick & add to our list
@@ -196,12 +308,24 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 			mInputConfigs.erase(joyId);
 		}
 
-		mInputConfigs[joyId] = new InputConfig(joyId, idx, SDL_JoystickName(joy), guid, SDL_JoystickNumButtons(joy), SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy)); 
+		// if SDL_JoystickPathForIndex does not exist, store a value containing index + guid
+		std::string devicePath = Utils::String::padLeft(std::to_string(idx), 4, '0') + "@" + std::string(guid);
+
+#if WIN32
+		SDL_version ver;
+		SDL_GetVersion(&ver);
+		if (ver.major >= 2 && ver.minor >= 24)
+			devicePath = Win32RawInput.getInputDeviceParent(Win32RawInput.SDL_JoystickPathForIndex(idx));
+#elif SDL_VERSION_ATLEAST(2, 24, 0)
+		devicePath = SDL_JoystickPathForIndex(idx);
+#endif
+
+		mInputConfigs[joyId] = new InputConfig(joyId, idx, SDL_JoystickName(joy), guid, SDL_JoystickNumButtons(joy), SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), devicePath);
 
 		if (!loadInputConfig(mInputConfigs[joyId]))
-			LOG(LogInfo) << "Added unconfigured joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ").";
+			LOG(LogInfo) << "Added unconfigured joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ", device path : " << devicePath << ").";
 		else
-			LOG(LogInfo) << "Added known joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ")";
+			LOG(LogInfo) << "Added known joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ", device path : " << devicePath << ").";
 
 		// set up the prevAxisValues
 		int numAxes = SDL_JoystickNumAxes(joy);
@@ -209,7 +333,7 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 		mPrevAxisValues.erase(joyId);
 		mPrevAxisValues[joyId] = new int[numAxes];
 		std::fill(mPrevAxisValues[joyId], mPrevAxisValues[joyId] + numAxes, 0); //initialize array to 0
-	}
+	}	
 
 	mJoysticksLock.unlock();
 
@@ -284,7 +408,25 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	
 	case SDL_MOUSEBUTTONDOWN:        
 	case SDL_MOUSEBUTTONUP:
-		window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, false));
+
+		if (!window->processMouseButton(ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, ev.button.x, ev.button.y))
+			window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, false));
+
+		return true;
+		/*
+	case SDL_FINGERMOTION:
+		window->processMouseMove(ev.tfinger.x * Renderer::getScreenWidth(), ev.tfinger.y * Renderer::getScreenHeight());
+		LOG(LogDebug) << "Touch motion: " << ev.tfinger.x * Renderer::getScreenWidth() << ", " << ev.tfinger.y* Renderer::getScreenHeight();
+		return true;
+		*/
+	case SDL_MOUSEMOTION:
+		window->processMouseMove(ev.motion.x, ev.motion.y, ev.motion.which == SDL_TOUCH_MOUSEID);
+		return true;
+
+	case SDL_MOUSEWHEEL:
+		if (ev.wheel.which != SDL_TOUCH_MOUSEID)
+			window->processMouseWheel(ev.wheel.y);
+
 		return true;
 
 	case SDL_JOYHATMOTION:
@@ -355,7 +497,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		return false;
 	}
 
-	if((ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN) || (ev.type == (unsigned int)SDL_USER_CECBUTTONUP))
+	if (mCECInputConfig && (ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN || ev.type == (unsigned int)SDL_USER_CECBUTTONUP))
 	{
 		window->input(getInputConfigByDevice(DEVICE_CEC), Input(DEVICE_CEC, TYPE_CEC_BUTTON, ev.user.code, ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN, false));
 		return true;
@@ -662,12 +804,35 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 			availableConfigured.push_back(conf.second);
 
 	// sort available configs
+#if WIN32
+	std::sort(availableConfigured.begin(), availableConfigured.end(), [](InputConfig * a, InputConfig * b) -> bool { return a->getSortDevicePath() < b->getSortDevicePath(); });
+#else
 	std::sort(availableConfigured.begin(), availableConfigured.end(), [](InputConfig * a, InputConfig * b) -> bool { return a->getDeviceIndex() < b->getDeviceIndex(); });
+#endif
 
 	// 2. Pour chaque joueur verifier si il y a un configurated
 	// associer le input au joueur
 	// enlever des disponibles
 	std::map<int, InputConfig*> playerJoysticks;
+
+	// First loop, search for PATH. Ultra High Priority
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		std::string playerConfigPath = Settings::getInstance()->getString(Utils::String::format("INPUT P%iPATH", player + 1));
+		if (!playerConfigPath.empty())
+		{
+			for (auto it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+			{
+				InputConfig* config = *it1;
+				if (playerConfigPath == config->getSortDevicePath())
+				{
+					availableConfigured.erase(it1);
+					playerJoysticks[player] = config;
+					break;
+				}
+			}
+		}
+	}
 
 	// First loop, search for GUID + NAME. High Priority
 	for (int player = 0; player < MAX_PLAYERS; player++) 
@@ -738,6 +903,14 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 		}		
 	}
 
+	for (int player = 0; player < MAX_PLAYERS; player++)
+	{
+		if (playerJoysticks[player] == nullptr)
+			continue;
+
+		LOG(LogInfo) << "computePlayersConfigs : Player " << player << " => " << playerJoysticks[player]->getDevicePath();
+	}
+
 	return playerJoysticks;
 }
 
@@ -749,13 +922,16 @@ std::string InputManager::configureEmulators() {
     InputConfig * playerInputConfig = playerJoysticks[player];
     if(playerInputConfig != NULL){
 #ifdef _ENABLEEMUELEC
-      command << "-p" << player+1 << "index "      <<  playerInputConfig->getDeviceIndex();
+      command << "-p" << player+1 << "index "      << playerInputConfig->getDeviceIndex();
       command << " -p" << player+1 << "guid "       << playerInputConfig->getDeviceGUIDString();
       command << " ";
 #else
-      command <<  "-p" << player+1 << "index "      <<  playerInputConfig->getDeviceIndex();
+      command <<  "-p" << player+1 << "index "      << playerInputConfig->getDeviceIndex();
       command << " -p" << player+1 << "guid "       << playerInputConfig->getDeviceGUIDString();
-      command << " -p" << player+1 << "name \""     <<  playerInputConfig->getDeviceName() << "\"";
+#if WIN32
+	  command << " -p" << player+1 << "path \""     << playerInputConfig->getDevicePath() << "\"";
+#endif
+      command << " -p" << player+1 << "name \""     << playerInputConfig->getDeviceName() << "\"";
       command << " -p" << player+1 << "nbbuttons "  << playerInputConfig->getDeviceNbButtons();
       command << " -p" << player+1 << "nbhats "     << playerInputConfig->getDeviceNbHats();
       command << " -p" << player+1 << "nbaxes "     << playerInputConfig->getDeviceNbAxes();
@@ -767,7 +943,7 @@ std::string InputManager::configureEmulators() {
   return command.str();
 }
 
-void InputManager::updateBatteryLevel(int id, std::string device, int level)
+void InputManager::updateBatteryLevel(int id, const std::string& device, const std::string& devicePath, int level)
 {
 	bool changed = false;
 
@@ -778,10 +954,21 @@ void InputManager::updateBatteryLevel(int id, std::string device, int level)
 		InputConfig* config = getInputConfigByDevice(joy.first);
 		if (config != NULL && config->isConfigured())
 		{
-			if (Utils::String::compareIgnoreCase(config->getDeviceGUIDString(), device) == 0)
+			if (!devicePath.empty())
 			{
-				config->updateBatteryLevel(level);
-				changed = true;
+				if (Utils::String::compareIgnoreCase(config->getDevicePath(), devicePath) == 0)
+				{
+					config->updateBatteryLevel(level);
+					changed = true;
+				}
+			}
+			else
+			{
+				if (Utils::String::compareIgnoreCase(config->getDeviceGUIDString(), device) == 0)
+				{
+					config->updateBatteryLevel(level);
+					changed = true;
+				}
 			}
 		}
 	}
@@ -806,4 +993,12 @@ std::vector<InputConfig*> InputManager::getInputConfigs()
 	}
 
 	return ret;
+}
+
+
+
+void InputManager::sendMouseClick(Window* window, int button)
+{
+	window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, button, true, false));
+	window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, button, false, false));
 }
