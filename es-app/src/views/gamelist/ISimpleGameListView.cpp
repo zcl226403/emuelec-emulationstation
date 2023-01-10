@@ -190,7 +190,7 @@ void ISimpleGameListView::update(const int deltaTime)
 
 	if (mYButton.isLongPressed(deltaTime))
 	{
-		moveToRandomGame();
+		showQuickSearch();
 		return;
 	}
 	
@@ -256,7 +256,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 
 	if (mYButton.isShortPressed(config, input))
 	{
-		showQuickSearch();
+		moveToRandomGame();
 		return true;
 	}
 
