@@ -308,12 +308,8 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 		// if SDL_JoystickPathForIndex does not exist, store a value containing index + guid
 		std::string devicePath = Utils::String::padLeft(std::to_string(idx), 4, '0') + "@" + std::string(guid);
 
-#if WIN32
-		SDL_version ver;
-		SDL_GetVersion(&ver);
-		if (ver.major >= 2 && ver.minor >= 24)
-			devicePath = Win32RawInput.getInputDeviceParent(Win32RawInput.SDL_JoystickPathForIndex(idx));
-#elif SDL_VERSION_ATLEAST(2, 24, 0)
+
+#if SDL_VERSION_ATLEAST(2, 24, 0)
 		devicePath = SDL_JoystickPathForIndex(idx);
 #endif
 
@@ -447,15 +443,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		}
 #endif
 
-#if !WIN32
-		if (ev.key.keysym.sym == SDLK_F4)
-		{
-			SDL_Event* quit = new SDL_Event();
-			quit->type = SDL_QUIT;
-			SDL_PushEvent(quit);
-			return false;
-		}
-#endif
+
 
 		window->input(getInputConfigByDevice(DEVICE_KEYBOARD), Input(DEVICE_KEYBOARD, TYPE_KEY, ev.key.keysym.sym, 1, false));
 		return true;
@@ -546,14 +534,7 @@ bool InputManager::tryLoadInputConfig(std::string path, InputConfig* config, boo
 #endif
 		}
 
-#if !WIN32
-		// check for a name if no guid is found
-		if (found_guid == false) {
-			if (strcmp(config->getDeviceName().c_str(), item.attribute("deviceName").value()) == 0) {
-				configNode = item;
-			}
-		}
-#endif
+
 	}
 
 	if (!configNode)
@@ -801,9 +782,8 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 			availableConfigured.push_back(conf.second);
 
 	// sort available configs
-#if WIN32
-	std::sort(availableConfigured.begin(), availableConfigured.end(), [](InputConfig * a, InputConfig * b) -> bool { return a->getSortDevicePath() < b->getSortDevicePath(); });
-#else
+
+#if
 	std::sort(availableConfigured.begin(), availableConfigured.end(), [](InputConfig * a, InputConfig * b) -> bool { return a->getDeviceIndex() < b->getDeviceIndex(); });
 #endif
 
