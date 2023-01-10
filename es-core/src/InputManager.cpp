@@ -293,25 +293,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	
 	case SDL_MOUSEBUTTONDOWN:        
 	case SDL_MOUSEBUTTONUP:
-
-		if (!window->processMouseButton(ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, ev.button.x, ev.button.y))
-			window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, false));
-
-		return true;
-		/*
-	case SDL_FINGERMOTION:
-		window->processMouseMove(ev.tfinger.x * Renderer::getScreenWidth(), ev.tfinger.y * Renderer::getScreenHeight());
-		LOG(LogDebug) << "Touch motion: " << ev.tfinger.x * Renderer::getScreenWidth() << ", " << ev.tfinger.y* Renderer::getScreenHeight();
-		return true;
-		*/
-	case SDL_MOUSEMOTION:
-		window->processMouseMove(ev.motion.x, ev.motion.y, ev.motion.which == SDL_TOUCH_MOUSEID);
-		return true;
-
-	case SDL_MOUSEWHEEL:
-		if (ev.wheel.which != SDL_TOUCH_MOUSEID)
-			window->processMouseWheel(ev.wheel.y);
-
+		window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, false));
 		return true;
 
 	case SDL_JOYHATMOTION:
@@ -335,7 +317,15 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		}
 #endif
 
-
+#if !WIN32
+		if (ev.key.keysym.sym == SDLK_F4)
+		{
+			SDL_Event* quit = new SDL_Event();
+			quit->type = SDL_QUIT;
+			SDL_PushEvent(quit);
+			return false;
+		}
+#endif
 
 		window->input(getInputConfigByDevice(DEVICE_KEYBOARD), Input(DEVICE_KEYBOARD, TYPE_KEY, ev.key.keysym.sym, 1, false));
 		return true;
@@ -374,7 +364,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		return false;
 	}
 
-	if (mCECInputConfig && (ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN || ev.type == (unsigned int)SDL_USER_CECBUTTONUP))
+	if((ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN) || (ev.type == (unsigned int)SDL_USER_CECBUTTONUP))
 	{
 		window->input(getInputConfigByDevice(DEVICE_CEC), Input(DEVICE_CEC, TYPE_CEC_BUTTON, ev.user.code, ev.type == (unsigned int)SDL_USER_CECBUTTONDOWN, false));
 		return true;
