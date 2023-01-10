@@ -405,7 +405,7 @@ void GuiMenu::openEmuELECSettings()
 #endif
 
 if (UIModeController::getInstance()->isUIModeFull())/*zhuji lanya  kaishi*/
-
+{
         auto bluetoothd_enabled = std::make_shared<SwitchComponent>(mWindow);
 		bool btbaseEnabled = SystemConf::getInstance()->get("ee_bluetooth.enabled") == "1";
 		bluetoothd_enabled->setState(btbaseEnabled);
