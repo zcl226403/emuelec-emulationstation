@@ -249,7 +249,7 @@ if (!isKidUI)
 /* < emuelec */
 void GuiMenu::openEmuELECSettings()
 {
-	auto s = new GuiSettings(mWindow, "EmuELEC Settings");
+	auto s = new GuiSettings(mWindow, "Jxz Settings");
 
 	Window* window = mWindow;
 	std::string a;
@@ -852,7 +852,7 @@ void GuiMenu::addVersionInfo()
 		else
 		{
 #ifdef _ENABLEEMUELEC	
-		label = "EMUELEC ES V" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)");
+		label = "YI XIONG YOU YI-" + ApiSystem::getInstance()->getVersion() + buildDate + " IP:" + getShOutput(R"(/usr/bin/emuelec-utils getip)");
 #else
 			std::string aboutInfo = ApiSystem::getInstance()->getApplicationName() + " V" + ApiSystem::getInstance()->getVersion();
 			label = aboutInfo + buildDate;
