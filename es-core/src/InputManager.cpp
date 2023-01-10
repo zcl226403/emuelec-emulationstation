@@ -82,8 +82,6 @@ void InputManager::init()
 	mMouseButtonsInputConfig = new InputConfig(DEVICE_MOUSE, -1, "Mouse", CEC_GUID_STRING, 0, 0, 0);
 	mMouseButtonsInputConfig->mapInput(BUTTON_OK, Input(DEVICE_MOUSE, TYPE_BUTTON, 1, 1, true));
 	mMouseButtonsInputConfig->mapInput(BUTTON_BACK, Input(DEVICE_MOUSE, TYPE_BUTTON, 3, 1, true));
-
-
 }
 
 void InputManager::deinit()
@@ -117,7 +115,6 @@ void InputManager::deinit()
 
 	SDL_JoystickEventState(SDL_DISABLE);
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-
 
 }
 
@@ -995,10 +992,3 @@ std::vector<InputConfig*> InputManager::getInputConfigs()
 	return ret;
 }
 
-
-
-void InputManager::sendMouseClick(Window* window, int button)
-{
-	window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, button, true, false));
-	window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, button, false, false));
-}
