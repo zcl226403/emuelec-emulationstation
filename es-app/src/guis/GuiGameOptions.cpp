@@ -628,14 +628,14 @@ std::vector<HelpPrompt> GuiGameOptions::getHelpPrompts()
 	auto prompts = mMenu.getHelpPrompts();
 	prompts.push_back(HelpPrompt(BUTTON_BACK, _("CLOSE"), [&] { close(); }));
 
-	if (mHasAdvancedGameOptions)
-	{
-		prompts.push_back(HelpPrompt("x", _("ADVANCED GAME OPTIONS"), [&] 
-		{
-			GuiMenu::popGameConfigurationGui(mWindow, mGame);
-			close();
-		}));
-	}
+	//if (mHasAdvancedGameOptions)
+	//{
+	//	prompts.push_back(HelpPrompt("x", _("ADVANCED GAME OPTIONS"), [&] 
+	//	{
+	//		GuiMenu::popGameConfigurationGui(mWindow, mGame);
+	//		close();
+	//	}));
+	//}
 
 	return prompts;
 }
