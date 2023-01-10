@@ -15,7 +15,6 @@
 #include <mutex>
 #include "utils/StringUtil.h"
 #include "LocaleES.h"
-#include "Paths.h"
 
 #define KEYBOARD_GUID_STRING "-1"
 #define CEC_GUID_STRING      "-2"
@@ -40,7 +39,7 @@ static std::mutex mJoysticksLock;
 InputManager* InputManager::mInstance = NULL;
 Delegate<IJoystickChangedEvent> InputManager::joystickChanged;
 
-InputManager::InputManager() : mKeyboardInputConfig(NULL), mMouseButtonsInputConfig(NULL), mCECInputConfig(NULL)
+InputManager::InputManager() : mKeyboardInputConfig(NULL)
 {
 }
 
@@ -64,19 +63,14 @@ void InputManager::init()
 
 	rebuildAllJoysticks(false);
 
-	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, -1, "Keyboard", KEYBOARD_GUID_STRING, 0, 0, 0); 
+	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, -1, "Keyboard", KEYBOARD_GUID_STRING, 0, 0, 0); // batocera
 	loadInputConfig(mKeyboardInputConfig);
 
 	SDL_USER_CECBUTTONDOWN = SDL_RegisterEvents(2);
 	SDL_USER_CECBUTTONUP   = SDL_USER_CECBUTTONDOWN + 1;
 	CECInput::init();
-	mCECInputConfig = new InputConfig(DEVICE_CEC, -1, "CEC", CEC_GUID_STRING, 0, 0, 0); 
+	mCECInputConfig = new InputConfig(DEVICE_CEC, -1, "CEC", CEC_GUID_STRING, 0, 0, 0); // batocera
 	loadInputConfig(mCECInputConfig);
-
-	// Mouse input, hardcoded not configurable with es_input.cfg
-	mMouseButtonsInputConfig = new InputConfig(DEVICE_MOUSE, -1, "Mouse", CEC_GUID_STRING, 0, 0, 0);
-	mMouseButtonsInputConfig->mapInput(BUTTON_OK, Input(DEVICE_MOUSE, TYPE_BUTTON, 1, 1, true));
-	mMouseButtonsInputConfig->mapInput(BUTTON_BACK, Input(DEVICE_MOUSE, TYPE_BUTTON, 3, 1, true));
 }
 
 void InputManager::deinit()
@@ -98,12 +92,6 @@ void InputManager::deinit()
 		mCECInputConfig = NULL;
 	}
 
-	if (mMouseButtonsInputConfig != NULL)
-	{
-		delete mMouseButtonsInputConfig;
-		mMouseButtonsInputConfig = NULL;
-	}
-
 	CECInput::deinit();
 
 	SDL_JoystickEventState(SDL_DISABLE);
@@ -123,9 +111,6 @@ InputConfig* InputManager::getInputConfigByDevice(int device)
 
 	if(device == DEVICE_CEC)
 		return mCECInputConfig;
-
-	if(device == DEVICE_MOUSE)
-		return mMouseButtonsInputConfig;
 	
 	return mInputConfigs[device];
 }
@@ -170,7 +155,6 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 	mJoysticksLock.lock();
 
 	int numJoysticks = SDL_NumJoysticks();
-
 	for (int idx = 0; idx < numJoysticks; idx++)
 	{
 		// open joystick & add to our list
@@ -197,20 +181,12 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 			mInputConfigs.erase(joyId);
 		}
 
-		// if SDL_JoystickPathForIndex does not exist, store a value containing index + guid
-		std::string devicePath = Utils::String::padLeft(std::to_string(idx), 4, '0') + "@" + std::string(guid);
-
-
-#if SDL_VERSION_ATLEAST(2, 24, 0)
-		devicePath = SDL_JoystickPathForIndex(idx);
-#endif
-
-		mInputConfigs[joyId] = new InputConfig(joyId, idx, SDL_JoystickName(joy), guid, SDL_JoystickNumButtons(joy), SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), devicePath);
+		mInputConfigs[joyId] = new InputConfig(joyId, idx, SDL_JoystickName(joy), guid, SDL_JoystickNumButtons(joy), SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy)); // batocera
 
 		if (!loadInputConfig(mInputConfigs[joyId]))
-			LOG(LogInfo) << "Added unconfigured joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ", device path : " << devicePath << ").";
+			LOG(LogInfo) << "Added unconfigured joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ").";
 		else
-			LOG(LogInfo) << "Added known joystick " << SDL_JoystickName(joy) << " (GUID: " << guid << ", instance ID: " << joyId << ", device index: " << idx << ", device path : " << devicePath << ").";
+			LOG(LogInfo) << "Added known joystick " << SDL_JoystickName(joy) << " (instance ID: " << joyId << ", device index: " << idx << ")";
 
 		// set up the prevAxisValues
 		int numAxes = SDL_JoystickNumAxes(joy);
@@ -218,7 +194,7 @@ void InputManager::rebuildAllJoysticks(bool deinit)
 		mPrevAxisValues.erase(joyId);
 		mPrevAxisValues[joyId] = new int[numAxes];
 		std::fill(mPrevAxisValues[joyId], mPrevAxisValues[joyId] + numAxes, 0); //initialize array to 0
-	}	
+	}
 
 	mJoysticksLock.unlock();
 
@@ -235,7 +211,8 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	switch (ev.type)
 	{
 	case SDL_JOYAXISMOTION:
-	{		
+	{
+		// batocera
 	// some axes are "full" : from -32000 to +32000
 	// in this case, their unpressed state is not 0
 	// SDL provides a function to get this value
@@ -266,13 +243,13 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 		if (mPrevAxisValues.find(ev.jaxis.which) != mPrevAxisValues.cend())
 		{			
 			//if it switched boundaries
-			if ((abs(ev.jaxis.value - initialValue) > DEADZONE) != (abs(mPrevAxisValues[ev.jaxis.which][ev.jaxis.axis]) > DEADZONE))
+			if ((abs(ev.jaxis.value - initialValue) > DEADZONE) != (abs(mPrevAxisValues[ev.jaxis.which][ev.jaxis.axis]) > DEADZONE)) // batocera
 			{
 				int normValue;
-				if (abs(ev.jaxis.value - initialValue) <= DEADZONE) 
+				if (abs(ev.jaxis.value - initialValue) <= DEADZONE) // batocera
 					normValue = 0;
 				else
-					if (ev.jaxis.value - initialValue > 0) 
+					if (ev.jaxis.value - initialValue > 0) // batocera
 						normValue = 1;
 					else
 						normValue = -1;
@@ -281,7 +258,7 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 				causedEvent = true;
 			}
 
-			mPrevAxisValues[ev.jaxis.which][ev.jaxis.axis] = ev.jaxis.value - initialValue; 
+			mPrevAxisValues[ev.jaxis.which][ev.jaxis.axis] = ev.jaxis.value - initialValue; // batocera
 		}
 
 		return causedEvent;
@@ -289,11 +266,6 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
 		window->input(getInputConfigByDevice(ev.jbutton.which), Input(ev.jbutton.which, TYPE_BUTTON, ev.jbutton.button, ev.jbutton.state == SDL_PRESSED, false));
-		return true;
-	
-	case SDL_MOUSEBUTTONDOWN:        
-	case SDL_MOUSEBUTTONUP:
-		window->input(getInputConfigByDevice(DEVICE_MOUSE), Input(DEVICE_MOUSE, TYPE_BUTTON, ev.button.button, ev.type == SDL_MOUSEBUTTONDOWN, false));
 		return true;
 
 	case SDL_JOYHATMOTION:
@@ -316,17 +288,6 @@ bool InputManager::parseEvent(const SDL_Event& ev, Window* window)
 			return false;
 		}
 #endif
-
-#if !WIN32
-		if (ev.key.keysym.sym == SDLK_F4)
-		{
-			SDL_Event* quit = new SDL_Event();
-			quit->type = SDL_QUIT;
-			SDL_PushEvent(quit);
-			return false;
-		}
-#endif
-
 		window->input(getInputConfigByDevice(DEVICE_KEYBOARD), Input(DEVICE_KEYBOARD, TYPE_KEY, ev.key.keysym.sym, 1, false));
 		return true;
 
@@ -392,8 +353,10 @@ bool InputManager::tryLoadInputConfig(std::string path, InputConfig* config, boo
 	pugi::xml_node root = doc.child("inputList");
 	if (!root)
 		return false;
-	
+
+	// batocera
 	// looking for a device having the same guid and name, or if not, one with the same guid or in last chance, one with the same name
+
 
 	bool found_guid = false;
 	bool found_exact = false;
@@ -428,7 +391,8 @@ bool InputManager::tryLoadInputConfig(std::string path, InputConfig* config, boo
 
 	if (!configNode)
 		return false;
-	
+
+	// batocera
 	if (found_exact == false)
 	{
 		LOG(LogInfo) << "Approximative device found using guid=" << configNode.attribute("deviceGUID").value() << " name=" << configNode.attribute("deviceName").value() << ")";
@@ -455,7 +419,7 @@ bool InputManager::loadInputConfig(InputConfig* config)
 		return true;
 
 	// Find system exact device
-	std::string sharedPath = Paths::getEmulationStationPath() + "/es_input.cfg";
+	std::string sharedPath = Utils::FileSystem::getSharedConfigPath() + "/es_input.cfg";
 	if (tryLoadInputConfig(sharedPath, config, false))
 		return true;
 
@@ -517,7 +481,8 @@ void InputManager::writeDeviceConfig(InputConfig* config)
 			// successfully loaded, delete the old entry if it exists
 			pugi::xml_node root = doc.child("inputList");
 			if (root)
-			{				
+			{
+				// batocera
 				pugi::xml_node oldEntry(NULL);
 				for (pugi::xml_node item = root.child("inputConfig"); item; item = item.next_sibling("inputConfig")) 
 				{
@@ -543,7 +508,8 @@ void InputManager::writeDeviceConfig(InputConfig* config)
 
 	config->writeToXML(root);
 	doc.save_file(path.c_str());
-        
+
+        // batocera
 	/* create a es_last_input.cfg so that people can easily share their config */
 	pugi::xml_document lastdoc;
 	pugi::xml_node lastroot = lastdoc.append_child("inputList");
@@ -605,15 +571,15 @@ void InputManager::doOnFinish()
 
 std::string InputManager::getConfigPath()
 {
-	return Paths::getUserEmulationStationPath() + "/es_input.cfg";
+	return Utils::FileSystem::getEsConfigPath() + "/es_input.cfg";
 }
 
 std::string InputManager::getTemporaryConfigPath()
 {
 #ifdef _ENABLEEMUELEC
-	return Paths::getUserEmulationStationPath() + "/es_temporaryinput.cfg";
+	return Utils::FileSystem::getEsConfigPath() + "/es_temporaryinput.cfg";
 #else
-	return Paths::getUserEmulationStationPath() + "/es_last_input.cfg";
+	return Utils::FileSystem::getEsConfigPath() + "/es_last_input.cfg";
 #endif
 }
 
@@ -635,8 +601,6 @@ int InputManager::getNumConfiguredDevices()
 
 	if (mCECInputConfig && mCECInputConfig->isConfigured())
 		num++;
-
-	// Mouse input is hardcoded & not configurable with es_input.cfg
 
 	return num;
 }
@@ -664,8 +628,9 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 {
 	std::unique_lock<std::mutex> lock(mJoysticksLock);
 
-	// 1. Recuperer les configurated
+	// 1 recuperer les configurated
 	std::vector<InputConfig *> availableConfigured;
+
 	for (auto conf : mInputConfigs)
 		if (conf.second != nullptr && conf.second->isConfigured())
 			availableConfigured.push_back(conf.second);
@@ -673,7 +638,7 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 	// sort available configs
 	std::sort(availableConfigured.begin(), availableConfigured.end(), [](InputConfig * a, InputConfig * b) -> bool { return a->getDeviceIndex() < b->getDeviceIndex(); });
 
-	// 2. Pour chaque joueur verifier si il y a un configurated
+	//2 pour chaque joueur verifier si il y a un configurated
 	// associer le input au joueur
 	// enlever des disponibles
 	std::map<int, InputConfig*> playerJoysticks;
@@ -681,33 +646,41 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 	// First loop, search for GUID + NAME. High Priority
 	for (int player = 0; player < MAX_PLAYERS; player++) 
 	{
-		std::string playerConfigName = Settings::getInstance()->getString(Utils::String::format("INPUT P%iNAME", player + 1));
-		std::string playerConfigGuid = Settings::getInstance()->getString(Utils::String::format("INPUT P%iGUID", player + 1));
+		std::stringstream sstm;
+		sstm << "INPUT P" << player + 1;
+		std::string confName = sstm.str() + "NAME";
+		std::string confGuid = sstm.str() + "GUID";
+
+		std::string playerConfigName = Settings::getInstance()->getString(confName);
+		std::string playerConfigGuid = Settings::getInstance()->getString(confGuid);
 
 		for (auto it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
 		{
-			InputConfig* config = *it1;
-			if (playerConfigName == config->getDeviceName() && playerConfigGuid == config->getDeviceGUIDString())
-			{
+			InputConfig * config = *it1;
+			bool nameFound = playerConfigName.compare(config->getDeviceName()) == 0;
+			bool guidfound = playerConfigGuid.compare(config->getDeviceGUIDString()) == 0;
+
+			if (nameFound && guidfound) {
 				availableConfigured.erase(it1);
 				playerJoysticks[player] = config;
 				break;
 			}
 		}
 	}
-
 	// Second loop, search for NAME. Low Priority
 	for (int player = 0; player < MAX_PLAYERS; player++) 
 	{
-		if (playerJoysticks[player] != nullptr)
-			continue;
+		std::stringstream sstm;
+		sstm << "INPUT P" << player + 1;
+		std::string confName = sstm.str() + "NAME";
 
-		std::string playerConfigName = Settings::getInstance()->getString(Utils::String::format("INPUT P%dNAME", player + 1));
+		std::string playerConfigName = Settings::getInstance()->getString(confName);
 
 		for (auto it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
 		{
 			InputConfig * config = *it1;
-			if (playerConfigName == config->getDeviceName())
+			bool nameFound = playerConfigName.compare(config->getDeviceName()) == 0;
+			if (nameFound) 
 			{
 				availableConfigured.erase(it1);
 				playerJoysticks[player] = config;
@@ -719,32 +692,32 @@ std::map<int, InputConfig*> InputManager::computePlayersConfigs()
 	// Last loop, search for free controllers for remaining players.
 	for (int player = 0; player < MAX_PLAYERS; player++) 
 	{
-		if (playerJoysticks[player] != nullptr)
-			continue;
-
 		// si aucune config a été trouvé pour le joueur, on essaie de lui filer un libre
-		for (auto it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+		if (playerJoysticks[player] == NULL) 
 		{
-			playerJoysticks[player] = *it1;
-			availableConfigured.erase(it1);
-			break;
+			for (auto it1 = availableConfigured.begin(); it1 != availableConfigured.end(); ++it1)
+			{
+				playerJoysticks[player] = *it1;
+				availableConfigured.erase(it1);
+				break;
+			}
 		}
 	}
 
 	// in case of hole (player 1 missing, but player 4 set, fill the holes with last players joysticks)
 	for (int player = 0; player < MAX_PLAYERS; player++) 
 	{
-		if (playerJoysticks[player] != nullptr)
-			continue;
-
-		for (int repplayer = MAX_PLAYERS; repplayer > player; repplayer--) 
+		if (playerJoysticks[player] == NULL) 
 		{
-			if (playerJoysticks[player] == NULL && playerJoysticks[repplayer] != NULL) 
+			for (int repplayer = MAX_PLAYERS; repplayer > player; repplayer--) 
 			{
-				playerJoysticks[player] = playerJoysticks[repplayer];
-				playerJoysticks[repplayer] = NULL;
+				if (playerJoysticks[player] == NULL && playerJoysticks[repplayer] != NULL) 
+				{
+					playerJoysticks[player] = playerJoysticks[repplayer];
+					playerJoysticks[repplayer] = NULL;
+				}
 			}
-		}		
+		}
 	}
 
 	return playerJoysticks;
