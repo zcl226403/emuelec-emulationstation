@@ -26,6 +26,7 @@
 #include "TextToSpeech.h"
 #include "Binding.h"
 #include "guis/GuiRetroAchievements.h"
+#include "platform.h"
 
 // buffer values for scrolling velocity (left, stopped, right)
 const int logoBuffersLeft[] = { -5, -2, -1 };
