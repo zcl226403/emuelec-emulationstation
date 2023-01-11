@@ -184,9 +184,16 @@ GuiGameOptions::GuiGameOptions(Window* window, FileData* game) : GuiComponent(wi
 
 				msgBox->addEntry(_U("\uF144 ") + _("HOST A NETPLAY GAME"), false, [window, msgBox, game]
 				{
+					//runSystemCommand("systemd-run /usr/bin/newjb xg_netplay_ip", "", nullptr);
+					std::string jxznetplay4 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 					if (ApiSystem::getInstance()->getIpAdress() == "NOT CONNECTED")
 					{
-						window->pushGui(new GuiMsgBox(window, _("YOU ARE NOT CONNECTED TO A NETWORK"), _("OK"), nullptr));
+						window->pushGui(new GuiMsgBox(window, _("You do not have access to the Internet, please check whether the cable is good, warning, do not use wifi online, otherwise you won't online."), _("OK"), nullptr));
+						return;
+					}
+					if (jxznetplay4.empty())
+					{
+						window->pushGui(new GuiMsgBox(window, _("You didn't open online server, warning, do not use wifi online, please use the Internet for online, otherwise you won't online."), _("OK"), nullptr));
 						return;
 					}
 
