@@ -12,6 +12,7 @@
 #include "guis/GuiMsgBox.h"
 #include "ThemeData.h"
 #include "guis/GuiSettings.h"
+#include "SystemConf.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
