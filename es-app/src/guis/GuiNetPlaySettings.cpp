@@ -31,7 +31,7 @@ GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("
 		SystemConf::getInstance()->set("global.jxznetplay.ip", jxznetplay);
 
 	addGroup(_("SETTINGS"));
-
+	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 	auto enableNetplay = std::make_shared<SwitchComponent>(mWindow);
 	enableNetplay->setState(SystemConf::getInstance()->getBool("global.netplay"));
 
@@ -52,7 +52,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 					std::string jxznetplay2 = std::string(getShOutput(R"(/usr/bin/newjb xg_netplay_ip2)"));
 					if (jxznetplay2.empty())
 					{
-						runSystemCommand("nohup netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 139.9.249.246:11001 > /dev/tty0 2>&1 &", "", nullptr);//dalu
+						runSystemCommand("nohup netplay -d netplay -c jxz -k jxz -u 1000 -g 1000 -l 139.9.249.246:11001 > /dev/null 2>&1 &", "", nullptr);//dalu
 						mWindow->pushGui(new GuiMsgBox(mWindow, _("In connection...")));
 					}
 					else
@@ -75,7 +75,7 @@ if (UIModeController::getInstance()->isUIModeFull())
     auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
 	addWithLabel(_("INTERNET STATUS"), status);	
 
-	addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
+	//addInputTextRow(_("NICKNAME"), "global.netplay.nickname", false);
 
 	addGroup(_("PSP"));
 
