@@ -69,8 +69,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-	addOptionList(_("LATENCY FRAMES RANGE"), _("The higher the value, the smoother the online, and the higher the delay. The default recommended value is 2."), { { _("0") , "0" },{ _("1") , "1" },{ _("2") , "2" },{ _("3") , "3" },{ _("4") , "4" } }, "global.netplay.latency", false);
-	addOptionList(_("MAX CONNECTIONS"), _("The maximum number of people allowed in your room is 4 by default."), { { _("4") , "4" },{ _("5") , "5" },{ _("6") , "6" },{ _("7") , "7" },{ _("8") , "8" },{ _("9") , "9" },{ _("10") , "10" },{ _("11") , "11" },{ _("12") , "12" },{ _("13") , "13" },{ _("14") , "14" },{ _("15") , "15" } }, "global.netplay.connections", false);
+	addOptionList(_("LATENCY FRAMES RANGE"), { { _("0") , "0" },{ _("1") , "1" },{ _("2") , "2" },{ _("3") , "3" },{ _("4") , "4" } }, "global.netplay.latency", false);
+	addOptionList(_("MAX CONNECTIONS"), { { _("4") , "4" },{ _("5") , "5" },{ _("6") , "6" },{ _("7") , "7" },{ _("8") , "8" },{ _("9") , "9" },{ _("10") , "10" },{ _("11") , "11" },{ _("12") , "12" },{ _("13") , "13" },{ _("14") , "14" },{ _("15") , "15" } }, "global.netplay.connections", false);
 
 	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
