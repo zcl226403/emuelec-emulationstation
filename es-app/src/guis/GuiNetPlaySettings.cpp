@@ -4,6 +4,7 @@
 #include "ApiSystem.h"
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
+#include "components/OptionListComponent.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
 #include "GuiLoading.h"
@@ -12,7 +13,7 @@
 #include "guis/GuiMsgBox.h"
 #include "ThemeData.h"
 #include "guis/GuiSettings.h"
-#include "SystemConf.h"
+
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -66,6 +67,10 @@ if (UIModeController::getInstance()->isUIModeFull())
 				}, _("NO"), nullptr));
      });
 
+    auto theme = ThemeData::getMenuTheme();
+	std::shared_ptr<Font> font = theme->Text.font;
+	unsigned int color = theme->Text.color;
+
     auto emuelec_netplay_max_connections = std::make_shared< OptionListComponent<std::string> >(mWindow, _("MAX CONNECTIONS"), false);
 	emuelec_enetplay_max_connections->addRange({ { _("AUTO"), "" },{ "1", "1" },{ "2", "2" },{ "3", "3" },{ "4", "4" },{ "5", "5" },{ "6", "6" },{ "7", "7" },{ "8", "8" },{ "9", "9" },{ "10", "10" },{ "11", "11" },{ "12", "12" },{ "13", "13" },{ "14", "14" },{ "15", "15" },{ "16", "16" },{ "17", "17" },{ "18", "18" },{ "19", "19" },{ "20", "20" },{ "21", "21" },{ "22", "22" },{ "23", "23" },{ "24", "24" },{ "25", "25" },{ "26", "26" },{ "27", "27" },{ "28", "28" },{ "29", "29" },{ "30", "30" } }, SystemConf::getInstance()->get("netplay.max.connections"));
 	addWithDescription(_("MAX CONNECTIONS"), _("The maximum number of people allowed in your room is 4 by default."), emuelec_netplay_max_connections);
@@ -81,10 +86,6 @@ if (UIModeController::getInstance()->isUIModeFull())
         if (SystemConf::getInstance()->set("netplay.latency.frames", name)) 
             SystemConf::getInstance()->saveSystemConf();
         });
-
-    auto theme = ThemeData::getMenuTheme();
-	std::shared_ptr<Font> font = theme->Text.font;
-	unsigned int color = theme->Text.color;
 
 	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
