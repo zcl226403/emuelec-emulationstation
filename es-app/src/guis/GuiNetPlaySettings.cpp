@@ -4,8 +4,6 @@
 #include "ApiSystem.h"
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
-#include "components/OptionListComponent.h"
-#include "guis/GuiSettings.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
 #include "GuiLoading.h"
@@ -13,8 +11,7 @@
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
 #include "ThemeData.h"
-
-
+#include "guis/GuiSettings.h"
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
 {
@@ -72,21 +69,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 	std::shared_ptr<Font> font = theme->Text.font;
 	unsigned int color = theme->Text.color;
 
-    auto emuelec_netplay_max_connections = std::make_shared< OptionListComponent<std::string> >(mWindow, _("MAX CONNECTIONS"), false);
-	emuelec_enetplay_max_connections->addRange({ { _("AUTO"), "" },{ "1", "1" },{ "2", "2" },{ "3", "3" },{ "4", "4" },{ "5", "5" },{ "6", "6" },{ "7", "7" },{ "8", "8" },{ "9", "9" },{ "10", "10" },{ "11", "11" },{ "12", "12" },{ "13", "13" },{ "14", "14" },{ "15", "15" },{ "16", "16" },{ "17", "17" },{ "18", "18" },{ "19", "19" },{ "20", "20" },{ "21", "21" },{ "22", "22" },{ "23", "23" },{ "24", "24" },{ "25", "25" },{ "26", "26" },{ "27", "27" },{ "28", "28" },{ "29", "29" },{ "30", "30" } }, SystemConf::getInstance()->get("netplay.max.connections"));
-	s->addWithDescription(_("MAX CONNECTIONS"), _("The maximum number of people allowed in your room is 4 by default."), emuelec_netplay_max_connections);
-	emuelec_netplay_max_connections->setSelectedChangedCallback([emuelec_netplay_max_connections](std::string name) { 
-        if (SystemConf::getInstance()->set("netplay.max.connections", name)) 
-            SystemConf::getInstance()->saveSystemConf();
-        });
-
-	auto netplay_input_latency_frames_range = std::make_shared< OptionListComponent<std::string> >(mWindow, _("INPUT LATENCY FRAMES RANGE"), false);
-	netplay_input_latency_frames_range->addRange({ { "0", "0" },{ "1", "1" },{ "2", "2" },{ "3", "3" },{ "4", "4" } }, SystemConf::getInstance()->get("netplay.latency.frames"));
-	s->addWithDescription(_("INPUT LATENCY FRAMES RANGE"), _("The higher the value, the smoother the online, and the higher the delay. The default recommended value is 2."), netplay_input_latency_frames_range);
-	netplay_input_latency_frames_range->setSelectedChangedCallback([netplay_input_latency_frames_range](std::string name) { 
-        if (SystemConf::getInstance()->set("netplay.latency.frames", name)) 
-            SystemConf::getInstance()->saveSystemConf();
-        });
+	addOptionList(_("LATENCY FRAMES RANGE"), { { _("0") , "0" },{ _("1") , "1" },{ _("2") , "2" },{ _("3") , "3" },{ _("4") , "4" } }, "global.netplay.latency", false);
+	addOptionList(_("MAX CONNECTIONS"), { { _("4") , "4" },{ _("5") , "5" },{ _("6") , "6" },{ _("7") , "7" },{ _("8") , "8" },{ _("9") , "9" },{ _("10") , "10" },{ _("11") , "11" },{ _("12") , "12" },{ _("13") , "13" },{ _("14") , "14" },{ _("15") , "15" } }, "global.netplay.connections", false);
 
 	auto NetPlayIP = std::make_shared<TextComponent>(mWindow, SystemConf::getInstance()->get("global.jxznetplay.ip"), font, color);
     addWithLabel(_("NETPLAY IP"), NetPlayIP);
