@@ -5,6 +5,7 @@
 #include "ThreadedHasher.h"
 #include "components/SwitchComponent.h"
 #include "components/OptionListComponent.h"
+#include "guis/GuiSettings.h"
 #include "GuiHashStart.h"
 #include "views/UIModeController.h"
 #include "GuiLoading.h"
@@ -12,7 +13,7 @@
 #include "components/BatteryIndicatorComponent.h"
 #include "guis/GuiMsgBox.h"
 #include "ThemeData.h"
-#include "guis/GuiSettings.h"
+
 
 
 GuiNetPlaySettings::GuiNetPlaySettings(Window* window) : GuiSettings(window, _("NETPLAY SETTINGS").c_str())
