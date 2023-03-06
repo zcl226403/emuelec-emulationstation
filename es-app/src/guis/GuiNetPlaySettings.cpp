@@ -99,7 +99,7 @@ if (UIModeController::getInstance()->isUIModeFull())
 	});
 	addInputTextRow(_("other PSP IP"), "global.netplay.opspip", false);
 
-	addEntry(_("Map Other IP to PSP"), _("After the IP address of the other host is set, go back and press this key again."), true, [this] //fuzhi duifang IP gei psp
+	addEntry(_("Map Other IP to PSP"), true, [this] //fuzhi duifang IP gei psp
 	{
 		mWindow->pushGui(new GuiMsgBox(mWindow, _("You will map the IP of the other party to the local PSP as the secondary host of the other party. Are you sure you want to map?"), _("YES"),
 			[this] {
