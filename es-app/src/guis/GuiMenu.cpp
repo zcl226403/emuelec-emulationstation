@@ -2528,6 +2528,9 @@ void GuiMenu::openGamesSettings()
 
 	s->addGroup(_("DEFAULT GLOBAL SETTINGS"));
 
+	if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
+		s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
+
 	// Screen ratio choice
 	if (!hasGlobalFeature("ratio"))
 	{
@@ -2867,8 +2870,8 @@ if (UIModeController::getInstance()->isUIModeFull())
 		s->addEntry(_("RETROACHIEVEMENT SETTINGS"), true, [this] { openRetroachievementsSettings(); });
 } //jieshu
 	// Netplay
-	if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
-		s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
+	//if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
+	//	s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
 
 if (UIModeController::getInstance()->isUIModeFull())
 { //kaishi
